@@ -403,6 +403,73 @@ const server = http.createServer(async (req, res) => {
     return res.end(clientHtml);
   }
 
+  if (url === '/api/explain-eob' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const imageData = body.image;
+      const mimeType = body.mimeType || 'image/jpeg';
+      if (!imageData) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'No image provided' }));
+      }
+
+      const https = require('https');
+      const requestBody = JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mimeType, data: imageData }
+            },
+            {
+              type: 'text',
+              text: 'This is a Medicare Explanation of Benefits (EOB) document. Please explain it in very simple plain English for a senior citizen. Focus on: 1) What service was provided, 2) What the doctor billed, 3) What the insurance plan paid, 4) What the patient owes (if anything), and 5) Whether this amount looks correct based on typical Medicare Advantage copays. Do NOT store or repeat any personal information like names, member IDs, or social security numbers. Keep the explanation friendly, clear, and under 200 words. Start with whether this is a bill or not.'
+            }
+          ]
+        }]
+      });
+
+      const apiReq = https.request({
+        hostname: 'api.anthropic.com',
+        path: '/v1/messages',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+          'anthropic-version': '2023-06-01',
+          'Content-Length': Buffer.byteLength(requestBody)
+        }
+      }, apiRes => {
+        let data = '';
+        apiRes.on('data', d => data += d);
+        apiRes.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            const explanation = json.content && json.content[0] && json.content[0].text;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ explanation: explanation || 'Could not read this document. Please call your agent for help.' }));
+          } catch(e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Could not analyze EOB' }));
+          }
+        });
+      });
+      apiReq.on('error', e => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      });
+      apiReq.write(requestBody);
+      apiReq.end();
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   if (url === '/diagnostic') {
     try {
       const token = await getAccessToken();

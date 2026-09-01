@@ -233,14 +233,32 @@
       </div>
     </div>
     <div class="scroll">
-      <label for="eob-photo-input" style="display:block;background:var(--navy);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;">
+      <label for="eob-photo-input" id="eob-scan-label" style="display:block;background:var(--navy);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;">
         <div style="width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,0.2);border:2px dashed var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:10px;">📷</div>
         <div style="color:#fff;font-size:16px;font-weight:600;margin-bottom:6px;">Tap to scan or photo an EOB</div>
         <div style="color:#8aaad4;font-size:13px;">Take a picture of your Explanation of Benefits letter</div>
       </label>
       <input id="eob-photo-input" type="file" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="handleEobPhoto(this)">
-      <div class="card" style="background:#fef6e4;border-color:#f0d080;">
-        <div style="font-size:14px;color:#7a5000;line-height:1.6;margin-bottom:12px;">Got a confusing letter from Medicare or your insurance company? Your agent can walk you through it in plain English.</div>
+
+      <div id="eob-loading" style="display:none;background:var(--navy);border-radius:var(--radius);padding:24px;text-align:center;">
+        <div class="loading-spinner" style="margin:0 auto 12px;border-top-color:var(--gold);"></div>
+        <div style="color:#fff;font-size:15px;font-weight:500;">Reading your EOB...</div>
+        <div style="color:#8aaad4;font-size:12px;margin-top:4px;">This takes about 10 seconds</div>
+      </div>
+
+      <div id="eob-result" style="display:none;background:#e4f6ee;border:1px solid #b0dfc0;border-radius:var(--radius);padding:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:10px;">EOB Explanation</div>
+        <div id="eob-explanation" style="font-size:14px;color:var(--text);line-height:1.7;"></div>
+        <button onclick="resetEob()" style="margin-top:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;width:100%;">📷 Scan Another EOB</button>
+      </div>
+
+      <div id="eob-error" style="display:none;background:var(--red-bg);border:1px solid #f5c0c0;border-radius:var(--radius);padding:16px;">
+        <div style="font-size:14px;color:var(--red);margin-bottom:10px;" id="eob-error-msg">Could not read this document.</div>
+        <a href="tel:8882155740" class="btn-primary" id="eob-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
+      </div>
+
+      <div id="eob-default-card" class="card" style="background:#fef6e4;border-color:#f0d080;">
+        <div style="font-size:14px;color:#7a5000;line-height:1.6;margin-bottom:12px;">Got a confusing letter from Medicare or your insurance company? Take a photo above or call your agent.</div>
         <a href="tel:8882155740" class="btn-primary" id="eob-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
       </div>
       <div class="card">
@@ -563,9 +581,53 @@ function goTo(screen) {
 }
 
 function handleEobPhoto(input) {
-  if (input.files && input.files[0]) {
-    showToast('Photo received — your agent will explain this EOB!');
-  }
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+    const mimeType = file.type || 'image/jpeg';
+
+    // Show loading, hide other states
+    document.getElementById('eob-scan-label').style.display = 'none';
+    document.getElementById('eob-loading').style.display = 'block';
+    document.getElementById('eob-result').style.display = 'none';
+    document.getElementById('eob-error').style.display = 'none';
+    document.getElementById('eob-default-card').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/explain-eob', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mimeType })
+      });
+      const data = await res.json();
+      document.getElementById('eob-loading').style.display = 'none';
+      if (data.explanation) {
+        document.getElementById('eob-explanation').textContent = data.explanation;
+        document.getElementById('eob-result').style.display = 'block';
+      } else {
+        document.getElementById('eob-error-msg').textContent = data.error || 'Could not read this document. Please call your agent.';
+        document.getElementById('eob-error').style.display = 'block';
+      }
+    } catch(e) {
+      document.getElementById('eob-loading').style.display = 'none';
+      document.getElementById('eob-error-msg').textContent = 'Connection error. Please try again or call your agent.';
+      document.getElementById('eob-error').style.display = 'block';
+    }
+    // Clear the input so the same file can be selected again
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetEob() {
+  document.getElementById('eob-scan-label').style.display = 'block';
+  document.getElementById('eob-loading').style.display = 'none';
+  document.getElementById('eob-result').style.display = 'none';
+  document.getElementById('eob-error').style.display = 'none';
+  document.getElementById('eob-default-card').style.display = 'block';
 }
 
 function showToast(msg) {

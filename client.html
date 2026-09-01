@@ -111,7 +111,7 @@
         <div class="plan-name" id="primary-plan-name">—</div>
         <div class="plan-id-box">
           <div>
-            <div class="plan-id-label">Policy Number</div>
+            <div class="plan-id-label">MAPD Plan Number</div>
             <div class="plan-id-val" id="primary-policy-number">—</div>
           </div>
           <button class="copy-btn" onclick="copyId()">Copy</button>
@@ -269,11 +269,11 @@ function renderApp(data) {
   const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage')) || data.policies[0];
   if (maPolicy) {
     document.getElementById('primary-plan-name').textContent = maPolicy.name || maPolicy.carrier;
-    document.getElementById('primary-policy-number').textContent = maPolicy.policyNumber || '—';
+    document.getElementById('primary-policy-number').textContent = maPolicy.mapdPlanNumber || maPolicy.policyNumber || '—';
     document.getElementById('primary-carrier').textContent = maPolicy.carrier || '—';
     document.getElementById('primary-effective').textContent = formatDate(maPolicy.effectiveDate);
     document.getElementById('primary-status').textContent = maPolicy.status || 'Active';
-    primaryPolicyNumber = maPolicy.policyNumber || '';
+    primaryPolicyNumber = maPolicy.mapdPlanNumber || maPolicy.policyNumber || '';
   }
 
   const agentName = data.agent || 'Your Agent';
@@ -315,6 +315,7 @@ function renderPolicies(data) {
       </div>
       <div class="policy-body">
         ${p.carrier ? `<div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">${p.carrier}</span></div>` : ''}
+        ${p.mapdPlanNumber ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
         ${p.policyNumber ? `<div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">${p.policyNumber}</span></div>` : ''}
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
         ${p.renewalDate ? `<div class="policy-row"><span class="policy-label">Renewal date</span><span class="policy-val">${formatDate(p.renewalDate)}</span></div>` : ''}
@@ -354,7 +355,7 @@ function goTo(screen) {
 
 function copyId() {
   navigator.clipboard.writeText(primaryPolicyNumber).catch(() => {});
-  showToast('Policy number copied!');
+  showToast('MAPD plan number copied!');
 }
 
 function showToast(msg) {

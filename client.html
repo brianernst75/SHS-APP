@@ -170,9 +170,9 @@
           <div style="width:36px;height:36px;border-radius:10px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
           <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Policies</div>
         </button>
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('eob')">
-          <div style="width:36px;height:36px;border-radius:10px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:18px;">📄</div>
-          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">Explain My Bill</div>
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('benefits')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:18px;">💊</div>
+          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Benefits</div>
         </button>
         <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="showToast('Card wallet coming soon!')">
           <div style="width:36px;height:36px;border-radius:10px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:18px;">💳</div>
@@ -218,6 +218,21 @@
       </div>
     </div>
     <div class="scroll" id="policies-content">
+      <div class="loading-screen"><div class="loading-spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="screen" id="screen-benefits">
+    <div class="header">
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">My Benefits</div>
+        <div class="header-sub" id="benefits-plan-sub">Medicare Advantage 2026</div>
+      </div>
+    </div>
+    <div class="scroll" id="benefits-content">
       <div class="loading-screen"><div class="loading-spinner"></div></div>
     </div>
   </div>
@@ -310,6 +325,7 @@
   <nav class="nav">
     <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
     <button class="nav-item" onclick="goTo('policies')" id="nav-policies"><span class="nav-icon">📋</span><span class="nav-label">Policies</span></button>
+    <button class="nav-item" onclick="goTo('benefits')" id="nav-benefits"><span class="nav-icon">💊</span><span class="nav-label">Benefits</span></button>
     <button class="nav-item" onclick="goTo('eob')" id="nav-eob"><span class="nav-icon">📄</span><span class="nav-label">My Bills</span></button>
     <button class="nav-item" onclick="goTo('profile')" id="nav-profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
   </nav>
@@ -466,6 +482,7 @@ function renderApp(data) {
   document.getElementById('home-content').style.flexDirection = 'column';
 
   renderPolicies(data);
+  renderBenefits(data);
   renderProfile(data);
 }
 
@@ -538,6 +555,92 @@ function togglePolicy(i) {
   if (!body) return;
   body.classList.toggle('open');
   chevron.classList.toggle('open');
+}
+
+function renderBenefits(data) {
+  const container = document.getElementById('benefits-content');
+  const b = data.planBenefits;
+
+  if (!b) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:30px 20px;">
+      <div style="font-size:40px;margin-bottom:12px;">💊</div>
+      <div style="font-size:15px;font-weight:500;color:var(--navy);margin-bottom:8px;">Benefits not found</div>
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">We couldn't find your plan's benefits in our database. Call your agent for a full benefits summary.</div>
+      <a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a>
+    </div>`;
+    return;
+  }
+
+  // Update header subtitle with plan name
+  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
+  if (maPolicy) {
+    document.getElementById('benefits-plan-sub').textContent = (maPolicy.carrier || 'Medicare Advantage') + ' — ' + (maPolicy.mapdPlanNumber || '2026');
+  }
+
+  function benefitRow(label, benefit, isFirst) {
+    if (!benefit) return '';
+    const val = benefit.copay || benefit.maxBenefit || benefit.visits || '—';
+    const sub = benefit.visits && benefit.copay ? benefit.visits : '';
+    return `<div class="policy-row">
+      <span class="policy-label">${label}</span>
+      <div style="text-align:right;">
+        <div style="font-size:13px;font-weight:500;color:var(--navy);">${val}</div>
+        ${sub ? `<div style="font-size:11px;color:var(--text-muted);">${sub}</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  let html = '';
+
+  // MOOP card
+  if (b.moop) {
+    html += `<div style="background:var(--navy);border-radius:var(--radius);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Max Out-of-Pocket</div>
+        <div style="font-size:12px;color:#8aaad4;">The most you'll ever pay in a year</div>
+      </div>
+      <div style="font-size:22px;font-weight:700;color:#fff;">${b.moop}</div>
+    </div>`;
+  }
+
+  // Medical copays
+  const medRows = [
+    ['Primary care visit', b.primaryCare],
+    ['Specialist visit', b.specialist],
+    ['Urgent care', b.urgentCare],
+    ['Emergency room', b.emergencyRoom],
+    ['Preventive care', b.preventive],
+    ['Lab services', b.labServices],
+    ['Ambulance', b.ambulance],
+    ['Mental health', b.mentalHealth],
+    ['Telehealth', b.telehealth],
+    ['Chiropractic', b.chiropractic],
+    ['Physical therapy', b.physicalTherapy],
+  ].filter(r => r[1]);
+
+  if (medRows.length) {
+    html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
+  }
+
+  // Supplemental benefits
+  const suppRows = [
+    ['Dental', b.dental],
+    ['Vision', b.vision],
+    ['Hearing aids', b.hearing],
+    ['OTC / Grocery benefit', b.otc],
+  ].filter(r => r[1]);
+
+  if (suppRows.length) {
+    html += `<div class="card"><div class="card-title">Supplemental Benefits</div>${suppRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
+  }
+
+  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);">
+    <div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your benefits?</div>
+    <div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can explain any benefit or help you find in-network providers.</div>
+    <a href="tel:8882155740" class="btn-primary" id="benefits-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
+  </div>`;
+
+  container.innerHTML = html;
 }
 
 function renderProfile(data) {

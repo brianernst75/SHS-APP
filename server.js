@@ -12,6 +12,33 @@ const ZOHO_API_BASE = 'https://www.zohoapis.com/crm/v6';
 
 let cachedToken = null;
 let tokenExpiry = 0;
+let mongoClient = null;
+
+async function getMongoClient() {
+  if (mongoClient) return mongoClient;
+  const { MongoClient } = require('mongodb');
+  mongoClient = new MongoClient(process.env.MONGODB_URI);
+  await mongoClient.connect();
+  return mongoClient;
+}
+
+async function getPlanBenefits(mapdPlanNumber) {
+  if (!mapdPlanNumber || !process.env.MONGODB_URI) return null;
+  try {
+    const client = await getMongoClient();
+    const col = client.db('shs').collection('ma_plans');
+    // Parse H0609-073-000 into contractId H0609 and planId 073
+    const parts = mapdPlanNumber.replace(/\s/g,'').split('-');
+    if (parts.length < 2) return null;
+    const contractId = parts[0];
+    const planId = parts[1];
+    const plan = await col.findOne({ contractId, planId });
+    return plan;
+  } catch(e) {
+    console.log('MongoDB benefits lookup error:', e.message);
+    return null;
+  }
+}
 
 function getAccessToken() {
   return new Promise((resolve, reject) => {
@@ -150,6 +177,11 @@ async function getClientData(anyId) {
 
   const policies = policiesRes.data || [];
 
+  // Look up benefits for MA plan
+  const maPolicy = policies.find(p => p.Coverage_Type && p.Coverage_Type.toLowerCase().includes('medicare advantage'));
+  const mapdNum = maPolicy ? (maPolicy.MAPD_Plan_Number || '') : '';
+  const planBenefits = mapdNum && mapdNum !== 'n/a' ? await getPlanBenefits(mapdNum) : null;
+
   return {
     id: contact.id,
     name: (contact.First_Name || '') + ' ' + (contact.Last_Name || ''),
@@ -161,6 +193,23 @@ async function getClientData(anyId) {
     medicareId: contact.Medicare_ID || contact.Medicare_Number || '',
     agent: contact.Owner ? contact.Owner.name : 'Your Agent',
     agentPhone: contact.Owner_s_Phone || contact.Owner_Phone || '',
+    planBenefits: planBenefits ? {
+      moop: planBenefits.moop,
+      primaryCare: planBenefits.benefits && planBenefits.benefits.primaryCare,
+      specialist: planBenefits.benefits && planBenefits.benefits.specialist,
+      urgentCare: planBenefits.benefits && planBenefits.benefits.urgentCare,
+      emergencyRoom: planBenefits.benefits && planBenefits.benefits.emergencyRoom,
+      preventive: planBenefits.benefits && planBenefits.benefits.preventive,
+      labServices: planBenefits.benefits && planBenefits.benefits.labServices,
+      ambulance: planBenefits.benefits && planBenefits.benefits.ambulance,
+      dental: planBenefits.benefits && planBenefits.benefits.dental,
+      vision: planBenefits.benefits && planBenefits.benefits.vision,
+      hearing: planBenefits.benefits && planBenefits.benefits.hearing,
+      otc: planBenefits.benefits && planBenefits.benefits.otc,
+      telehealth: planBenefits.benefits && planBenefits.benefits.telehealth,
+      chiropractic: planBenefits.benefits && planBenefits.benefits.chiropractic,
+      physicalTherapy: planBenefits.benefits && planBenefits.benefits.physicalTherapy,
+    } : null,
     policies: policies.map(p => ({
       name: p.Deal_Name || '',
       type: p.Coverage_Type || '',

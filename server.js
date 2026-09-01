@@ -143,7 +143,7 @@ async function getClientData(anyId) {
 
   // Fetch all linked policies from Potentials
   const policiesRes = await zohoGet(
-    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Stage,Policy_Number,Monthly_Premium,Closing_Date&per_page=20`,
+    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Effective_Date,Stage,Policy_Number,Monthly_Premium,Closing_Date&per_page=20`,
     token
   );
   console.log('Policies found:', policiesRes.data ? policiesRes.data.length : 0);
@@ -165,7 +165,7 @@ async function getClientData(anyId) {
       carrier: p.Insurance_Company || '',
       policyNumber: p.Policy_Number || '',
       premium: p.Monthly_Premium || 0,
-      effectiveDate: p.Application_Date || '',
+      effectiveDate: p.Effective_Date || p.Application_Date || '',
       renewalDate: p.Closing_Date || '',
       status: p.Stage || 'Active'
     }))

@@ -406,10 +406,37 @@ const server = http.createServer(async (req, res) => {
   if (url === '/diagnostic') {
     try {
       const token = await getAccessToken();
-      // Try to list first 2 contacts to verify scope and org
       const test = await zohoGet('/crm/v6/Contacts?fields=First_Name,Last_Name&per_page=2', token);
+      
+      // Test MongoDB connection
+      let mongoStatus = 'not configured';
+      let mongoDetails = '';
+      if (process.env.MONGODB_URI) {
+        try {
+          const { MongoClient } = require('mongodb');
+          const client = new MongoClient(process.env.MONGODB_URI);
+          await client.connect();
+          const db = client.db('shs');
+          const collections = await db.listCollections().toArray();
+          const planCount = collections.find(c => c.name === 'ma_plans') 
+            ? await db.collection('ma_plans').countDocuments() 
+            : 0;
+          mongoStatus = 'connected';
+          mongoDetails = planCount + ' plans in database';
+          await client.close();
+        } catch(me) {
+          mongoStatus = 'error: ' + me.message;
+        }
+      }
+      
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ status: 'ok', token: 'valid', contacts: test }, null, 2));
+      return res.end(JSON.stringify({ 
+        status: 'ok', 
+        zoho: 'connected',
+        contacts: test,
+        mongodb: mongoStatus,
+        mongoDetails
+      }, null, 2));
     } catch(e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ status: 'error', message: e.message }));

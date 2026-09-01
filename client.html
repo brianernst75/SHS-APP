@@ -103,11 +103,11 @@
     </div>
     <div id="home-loading" class="loading-screen">
       <div class="loading-spinner"></div>
-      <div class="loading-text">Loading your coverage from Zoho...</div>
+      <div class="loading-text">Loading your coverage...</div>
     </div>
     <div class="scroll" id="home-content" style="display:none;">
       <div class="plan-card" id="plan-card">
-        <div class="plan-label">Your Primary Plan</div>
+        <div class="plan-label">Your Active Plan</div>
         <div class="plan-name" id="primary-plan-name">—</div>
         <div class="plan-id-box">
           <div>
@@ -131,6 +131,26 @@
           </div>
         </div>
       </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('policies')">
+          <div style="width:44px;height:44px;border-radius:13px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:22px;">📋</div>
+          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Policies</div>
+        </button>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('eob')">
+          <div style="width:44px;height:44px;border-radius:13px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:22px;">📄</div>
+          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">Explain My Bill</div>
+        </button>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="showToast('Card wallet coming soon!')">
+          <div style="width:44px;height:44px;border-radius:13px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:22px;">💳</div>
+          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Cards</div>
+        </button>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('profile')">
+          <div style="width:44px;height:44px;border-radius:13px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:22px;">👤</div>
+          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Profile</div>
+        </button>
+      </div>
+
       <div class="card">
         <div class="card-title">My Agent</div>
         <div class="agent-row">
@@ -142,9 +162,10 @@
         </div>
         <div class="agent-btns">
           <a href="tel:6362444415" class="btn-primary" id="agent-call">📞 Call Direct</a>
-          <a href="sms:6362444415" class="btn-secondary">💬 Text</a>
+          <a href="sms:6362444415" class="btn-secondary" id="agent-text">💬 Text</a>
         </div>
       </div>
+
       <a href="tel:6362444415" class="hotline-card">
         <div>
           <div class="hotline-label">SHS Main Office</div>
@@ -285,9 +306,15 @@ function renderApp(data) {
   }
 
   const agentName = data.agent || 'Your Agent';
-  const initials = agentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  const initials = agentName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase();
   document.getElementById('agent-initials').textContent = initials;
   document.getElementById('agent-name').textContent = agentName;
+
+  // Wire agent phone from Zoho owner email domain to lookup — for now use office number
+  // Agent direct line will be added when we store it in Zoho
+  const agentPhone = data.agentPhone || '6362444415';
+  document.getElementById('agent-call').href = 'tel:' + agentPhone;
+  document.getElementById('agent-text').href = 'sms:' + agentPhone;
 
   document.getElementById('home-loading').style.display = 'none';
   document.getElementById('home-content').style.display = 'flex';

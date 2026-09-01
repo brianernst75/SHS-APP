@@ -266,14 +266,22 @@ function renderApp(data) {
   document.getElementById('greeting').textContent = 'Hello, ' + firstName + ' 👋';
   document.getElementById('header-sub').textContent = 'Your Medicare coverage at a glance';
 
-  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage')) || data.policies[0];
+  // Find active MA plan for home screen
+  const maPolicy = data.policies.find(p => 
+    p.type && p.type.toLowerCase().includes('medicare advantage') && 
+    p.status && (p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'enrolled')
+  ) || data.policies.find(p => 
+    p.type && p.type.toLowerCase().includes('medicare advantage')
+  ) || data.policies.find(p => p.status && p.status.toLowerCase() === 'active') || data.policies[0];
+
   if (maPolicy) {
-    document.getElementById('primary-plan-name').textContent = maPolicy.name || maPolicy.carrier;
-    document.getElementById('primary-policy-number').textContent = maPolicy.mapdPlanNumber || maPolicy.policyNumber || '—';
+    const planDisplayName = maPolicy.carrier ? maPolicy.carrier + ' Medicare Advantage' : (maPolicy.type || maPolicy.name);
+    document.getElementById('primary-plan-name').textContent = planDisplayName;
+    document.getElementById('primary-policy-number').textContent = maPolicy.mapdPlanNumber && maPolicy.mapdPlanNumber !== 'n/a' ? maPolicy.mapdPlanNumber : (maPolicy.policyNumber || '—');
     document.getElementById('primary-carrier').textContent = maPolicy.carrier || '—';
     document.getElementById('primary-effective').textContent = formatDate(maPolicy.effectiveDate);
     document.getElementById('primary-status').textContent = maPolicy.status || 'Active';
-    primaryPolicyNumber = maPolicy.mapdPlanNumber || maPolicy.policyNumber || '';
+    primaryPolicyNumber = maPolicy.mapdPlanNumber && maPolicy.mapdPlanNumber !== 'n/a' ? maPolicy.mapdPlanNumber : (maPolicy.policyNumber || '');
   }
 
   const agentName = data.agent || 'Your Agent';
@@ -336,7 +344,7 @@ function renderProfile(data) {
   document.getElementById('profile-initials').textContent = initials;
   document.getElementById('profile-name').textContent = data.name;
   const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare')) || data.policies[0];
-  document.getElementById('profile-plan').textContent = maPolicy ? (maPolicy.name || maPolicy.carrier) : 'SHS Client';
+  document.getElementById('profile-plan').textContent = maPolicy ? (maPolicy.carrier ? maPolicy.carrier + ' Medicare Advantage' : maPolicy.type) : 'SHS Client';
   document.getElementById('profile-phone').textContent = data.phone || '—';
   document.getElementById('profile-email').textContent = data.email || '—';
   document.getElementById('profile-address').textContent = data.address || '—';

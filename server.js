@@ -146,7 +146,7 @@ function serveAdmin(res, pw) {
     <h2>Generate a client link</h2>
     <div class="tip" style="margin-bottom:20px;">
       Open the client's record in Zoho CRM. Copy the long number at the end of the URL in your browser. Paste it below.
-      <br><br>Example URL: zoho.com/crm/org123/tab/Contacts/<strong>4567891234567890123</strong>
+      <br><br>Example URL:<br><span style="word-break:break-all;font-size:12px;">zoho.com/crm/org123/tab/Contacts/<strong>4567891234567890123</strong></span>
     </div>
     <label>Zoho CRM Contact ID</label>
     <input type="text" id="contact-id" placeholder="e.g. 4567891234567890123" />

@@ -363,7 +363,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(401, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ error: 'Unauthorized' }));
     }
-    const contactId = url.replace('/api/client/', '').replace('/preview', '');
+    const contactId = url.replace('/api/client/', '').replace('/preview', '').split('?')[0];
     try {
       const data = await getClientData(contactId);
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -380,7 +380,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.startsWith('/api/client/')) {
-    const contactId = url.replace('/api/client/', '');
+    const contactId = url.replace('/api/client/', '').split('?')[0];
     try {
       const data = await getClientData(contactId);
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -392,7 +392,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.startsWith('/client/')) {
-    const contactId = url.replace('/client/', '');
+    const contactId = url.replace('/client/', '').split('?')[0];
     const clientHtml = fs.readFileSync(path.join(__dirname, 'client.html'), 'utf8')
       .replace('__CONTACT_ID__', contactId);
     res.writeHead(200, { 'Content-Type': 'text/html' });

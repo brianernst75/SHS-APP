@@ -301,9 +301,7 @@ function renderPolicies(data) {
     return sum + (isMA && Math.round(amount) === 25 ? 0 : amount);
   }, 0);
   let html = '';
-  if (total > 0) {
-    html += `<div class="total-card"><div class="total-label">Total monthly premiums</div><div class="total-amount">$${total.toFixed(2)}</div><div class="total-sub">across all your SHS policies</div></div>`;
-  }
+
   data.policies.forEach((p, i) => {
     const color = POLICY_COLORS[i % POLICY_COLORS.length];
     const carrierPhone = p.carrierPhone || '';
@@ -322,7 +320,7 @@ function renderPolicies(data) {
         ${p.mapdPlanNumber ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
         ${p.policyNumber ? `<div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">${p.policyNumber}</span></div>` : ''}
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
-        ${p.renewalDate ? `<div class="policy-row"><span class="policy-label">Renewal date</span><span class="policy-val">${formatDate(p.renewalDate)}</span></div>` : ''}
+
         <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">${p.status || 'Active'}</span></div>
         ${p.agentName ? `<div class="policy-row"><span class="policy-label">Your agent</span><span class="policy-val">${p.agentName}</span></div>` : ''}
         ${p.carrierPhone ? `<div class="policy-row"><span class="policy-label">Carrier phone</span><a href="tel:${p.carrierPhone}" style="font-size:13px;font-weight:500;color:var(--navy);text-decoration:none;">${p.carrierPhone}</a></div>` : ''}

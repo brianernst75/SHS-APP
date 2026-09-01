@@ -411,13 +411,10 @@ function goTo(screen) {
   document.getElementById('nav-' + screen).classList.add('active');
 }
 
-function openCamera() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.capture = 'environment';
-  input.onchange = () => showToast('Photo received — EOB explanation coming soon!');
-  input.click();
+function handleEobPhoto(input) {
+  if (input.files && input.files[0]) {
+    showToast('Photo received — your agent will explain this EOB!');
+  }
 }
 
 function copyId() {

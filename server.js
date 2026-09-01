@@ -75,14 +75,22 @@ function zohoGet(path, token) {
 
 async function getClientData(contactId) {
   const token = await getAccessToken();
-  const contactRes = await zohoGet(`/crm/v6/Contacts/${contactId}`, token);
-  if (!contactRes.data || !contactRes.data[0]) throw new Error('Contact not found');
+
+  // Fetch contact - use fields parameter to ensure data returns
+  const contactRes = await zohoGet(
+    `/crm/v6/Contacts/${contactId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
+    token
+  );
+  console.log('Contact response:', JSON.stringify(contactRes).substring(0, 300));
+  if (!contactRes.data || !contactRes.data[0]) throw new Error('Contact not found - ID: ' + contactId);
   const contact = contactRes.data[0];
 
+  // Fetch linked policies from Potentials
   const policiesRes = await zohoGet(
     `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Stage,Policy_Number,Monthly_Premium,Closing_Date&per_page=20`,
     token
   );
+  console.log('Policies response:', JSON.stringify(policiesRes).substring(0, 300));
   const policies = policiesRes.data || [];
 
   return {

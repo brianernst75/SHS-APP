@@ -343,6 +343,19 @@ const server = http.createServer(async (req, res) => {
     return res.end(clientHtml);
   }
 
+  if (url === '/diagnostic') {
+    try {
+      const token = await getAccessToken();
+      // Try to list first 2 contacts to verify scope and org
+      const test = await zohoGet('/crm/v6/Contacts?fields=First_Name,Last_Name&per_page=2', token);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ status: 'ok', token: 'valid', contacts: test }, null, 2));
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ status: 'error', message: e.message }));
+    }
+  }
+
   const filePath = path.join(__dirname, 'index.html');
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(500); return res.end('Error'); }

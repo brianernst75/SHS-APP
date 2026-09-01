@@ -19,39 +19,53 @@
   html, body { height: 100%; overflow: hidden; background: var(--navy-dark); }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; color: var(--text); }
   .app { max-width: 430px; margin: 0 auto; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
-  .header { background: var(--navy); padding: env(safe-area-inset-top, 14px) 20px 14px; padding-top: max(env(safe-area-inset-top), 14px); flex-shrink: 0; }
+
+  /* Header */
+  .header { background: var(--navy); padding: env(safe-area-inset-top, 14px) 20px 14px; padding-top: max(env(safe-area-inset-top), 14px); flex-shrink: 0; display: flex; align-items: flex-start; gap: 10px; }
+  .header-content { flex: 1; }
   .header-brand { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
   .header-title { color: #fff; font-size: 20px; font-weight: 600; line-height: 1.2; }
   .header-sub { color: #8aaad4; font-size: 12px; margin-top: 2px; }
+  .back-btn { background: rgba(255,255,255,0.15); border: none; border-radius: 10px; color: #fff; font-size: 20px; width: 36px; height: 36px; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .back-btn.visible { display: flex; }
+
+  /* Screens */
   .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   .screen.active { display: flex; }
   .scroll { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
   .scroll::-webkit-scrollbar { display: none; }
+
+  /* Cards */
   .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
   .card-title { font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6; }
+
+  /* Plan card */
   .plan-card { background: var(--navy); border-radius: var(--radius); padding: 12px 14px; color: #fff; }
   .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
   .plan-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.2; }
-  .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 7px 12px; margin-bottom: 10px; }
   .plan-id-label { font-size: 10px; color: var(--gold); margin-bottom: 3px; }
   .plan-id-val { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
-  .copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 12px; cursor: pointer; }
-  .plan-meta { display: flex; gap: 0; }
+  .plan-meta { display: flex; }
   .plan-meta-item { flex: 1; }
   .plan-meta-label { font-size: 9px; color: #8aaad4; margin-bottom: 1px; }
   .plan-meta-val { font-size: 12px; font-weight: 500; }
-  .agent-row { display: flex; align-items: center; gap: 12px; }
-  .agent-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .agent-name { font-size: 16px; font-weight: 600; }
-  .agent-role { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-  .agent-btns { display: flex; gap: 8px; margin-top: 12px; }
-  .btn-primary { background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
-  .btn-secondary { background: var(--bg); color: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+
+  /* Agent */
+  .agent-card-compact { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+  .agent-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .agent-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .agent-role { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .agent-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-primary { background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 8px 12px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; }
+  .btn-secondary { background: var(--bg); color: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; }
   .hotline-card { background: var(--navy); border-radius: var(--radius); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; }
   .hotline-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
   .hotline-number { font-size: 18px; color: #fff; font-weight: 600; }
   .call-circle { width: 38px; height: 38px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .policy-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 0; }
+
+  /* Policy cards */
+  .policy-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
   .policy-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .policy-header-left { flex: 1; min-width: 0; overflow: hidden; }
   .policy-header-right { flex-shrink: 0; text-align: right; }
@@ -59,32 +73,45 @@
   .policy-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .policy-premium { font-size: 20px; font-weight: 700; white-space: nowrap; }
   .policy-premium-label { font-size: 10px; opacity: 0.7; }
-  .policy-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 0; }
+  .policy-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+  .policy-body.open { max-height: 500px; padding: 0 16px 14px; }
   .policy-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .policy-row:last-child { border-bottom: none; }
   .policy-label { font-size: 13px; color: var(--text-muted); }
   .policy-val { font-size: 13px; font-weight: 500; color: var(--text); }
+  .policy-chevron { font-size: 12px; color: var(--text-muted); margin-left: 4px; transition: transform 0.3s; display: inline-block; }
+  .policy-chevron.open { transform: rotate(180deg); }
   .badge { font-size: 11px; border-radius: 6px; padding: 3px 9px; font-weight: 500; }
   .badge-green { background: var(--green-bg); color: var(--green); }
-  .total-card { background: var(--green-bg); border-radius: var(--radius); padding: 14px 18px; border: 1px solid #b0dfc0; }
-  .total-label { font-size: 12px; color: var(--green); font-weight: 600; margin-bottom: 2px; }
-  .total-amount { font-size: 30px; font-weight: 700; color: var(--navy); }
-  .total-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Nav */
   .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 6px 0 env(safe-area-inset-bottom, 16px); flex-shrink: 0; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; border: none; background: none; }
   .nav-icon { font-size: 22px; color: #b0bcd4; }
   .nav-label { font-size: 9px; color: #b0bcd4; font-weight: 500; }
   .nav-item.active .nav-icon { color: var(--navy); }
   .nav-item.active .nav-label { color: var(--navy); }
+
+  /* Toast */
   .toast { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s; white-space: nowrap; z-index: 100; }
   .toast.show { opacity: 1; }
+
+  /* Loading */
   .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 16px; }
   .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e6f0; border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
   .loading-text { font-size: 15px; color: var(--text-muted); }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Profile */
   .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
   .setting-row:last-child { border-bottom: none; }
   .profile-avatar-lg { width: 72px; height: 72px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+
+  /* Home screen banner */
+  .home-banner { background: #fff8e6; border: 1px solid #f0d080; border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .banner-text { font-size: 13px; color: #7a5000; line-height: 1.5; flex: 1; }
+  .banner-close { background: none; border: none; font-size: 18px; color: #7a5000; cursor: pointer; flex-shrink: 0; }
+
   @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
   .screen.active .scroll > * { animation: slideUp 0.25s ease both; }
   .screen.active .scroll > *:nth-child(2) { animation-delay: 0.04s; }
@@ -95,25 +122,32 @@
 <body>
 <div class="app">
 
+  <!-- HOME -->
   <div class="screen active" id="screen-home">
     <div class="header">
-      <div class="header-brand">Senior Health Solutions</div>
-      <div class="header-title" id="greeting">Loading your coverage...</div>
-      <div class="header-sub" id="header-sub">Please wait</div>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title" id="greeting">Loading your coverage...</div>
+        <div class="header-sub" id="header-sub">Please wait</div>
+      </div>
     </div>
     <div id="home-loading" class="loading-screen">
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading your coverage...</div>
     </div>
     <div class="scroll" id="home-content" style="display:none;">
-      <div class="plan-card" id="plan-card">
+
+      <div id="home-banner" class="home-banner" style="display:none;">
+        <div class="banner-text">📱 Save this app to your home screen — tap the Share button then "Add to Home Screen"</div>
+        <button class="banner-close" onclick="dismissBanner()">✕</button>
+      </div>
+
+      <div class="plan-card">
         <div class="plan-label">Your Active Plan</div>
         <div class="plan-name" id="primary-plan-name">—</div>
         <div class="plan-id-box">
-          <div>
-            <div class="plan-id-label">MAPD Plan Number</div>
-            <div class="plan-id-val" id="primary-policy-number">—</div>
-          </div>
+          <div class="plan-id-label">MAPD Plan Number</div>
+          <div class="plan-id-val" id="primary-policy-number">—</div>
         </div>
         <div class="plan-meta">
           <div class="plan-meta-item">
@@ -150,17 +184,14 @@
         </button>
       </div>
 
-      <div class="card">
-        <div class="card-title">My Agent</div>
-        <div class="agent-row">
-          <div class="agent-avatar" id="agent-initials">SHS</div>
-          <div>
-            <div class="agent-name" id="agent-name">Your Agent</div>
-            <div class="agent-role">Senior Health Solutions</div>
-          </div>
+      <div class="agent-card-compact">
+        <div class="agent-avatar" id="agent-initials">SHS</div>
+        <div style="flex:1;min-width:0;">
+          <div class="agent-name" id="agent-name">Your Agent</div>
+          <div class="agent-role">Senior Health Solutions</div>
         </div>
-        <div class="agent-btns">
-          <a href="tel:8882155740" class="btn-primary" id="agent-call">📞 Call Direct</a>
+        <div class="agent-actions">
+          <a href="tel:8882155740" class="btn-primary" id="agent-call">📞 Call</a>
           <a href="sms:8882155740" class="btn-secondary" id="agent-text">💬 Text</a>
         </div>
       </div>
@@ -172,25 +203,34 @@
         </div>
         <div class="call-circle">📞</div>
       </a>
+
     </div>
   </div>
 
+  <!-- POLICIES -->
   <div class="screen" id="screen-policies">
     <div class="header">
-      <div class="header-brand">Senior Health Solutions</div>
-      <div class="header-title">My Policies</div>
-      <div class="header-sub">All your coverage in one place</div>
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">My Policies</div>
+        <div class="header-sub">All your coverage in one place</div>
+      </div>
     </div>
     <div class="scroll" id="policies-content">
       <div class="loading-screen"><div class="loading-spinner"></div></div>
     </div>
   </div>
 
+  <!-- EOB -->
   <div class="screen" id="screen-eob">
     <div class="header">
-      <div class="header-brand">Senior Health Solutions</div>
-      <div class="header-title">Explain My Bill</div>
-      <div class="header-sub">What does "This Is Not A Bill" mean?</div>
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">Explain My Bill</div>
+        <div class="header-sub">What does "This Is Not A Bill" mean?</div>
+      </div>
     </div>
     <div class="scroll">
       <label for="eob-photo-input" style="display:block;background:var(--navy);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;">
@@ -210,11 +250,15 @@
     </div>
   </div>
 
+  <!-- PROFILE -->
   <div class="screen" id="screen-profile">
     <div class="header">
-      <div class="header-brand">Senior Health Solutions</div>
-      <div class="header-title">My Profile</div>
-      <div class="header-sub">Your personal information</div>
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">My Profile</div>
+        <div class="header-sub">Your personal information</div>
+      </div>
     </div>
     <div class="scroll">
       <div class="card">
@@ -244,6 +288,7 @@
     </div>
   </div>
 
+  <!-- NAV -->
   <nav class="nav">
     <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
     <button class="nav-item" onclick="goTo('policies')" id="nav-policies"><span class="nav-icon">📋</span><span class="nav-label">Policies</span></button>
@@ -256,6 +301,47 @@
 
 <script>
 const CONTACT_ID = '__CONTACT_ID__';
+
+// Agent phone lookup by name
+const AGENT_PHONES = {
+  'paul kuhn':              '6363660522',
+  'jacob kelley':           '6363660537',
+  'bruce fleming':          '6367573804',
+  'jodi vogeler':           '6363660586',
+  'taylor hansen':          '6363660530',
+  'veronica carrow':        '6367573399',
+  'aaron weaver':           '6363660525',
+  'alex adams':             '6363660520',
+  'brad duttlinger':        '6363660662',
+  'brandon kirkpatrick':    '6363660568',
+  'brian chrysler':         '6363660521',
+  'bryce ernst':            '6363660575',
+  'chad burris':            '6367573803',
+  'derec bieri':            '6363660536',
+  'elizabeth yannayon':     '6363660599',
+  'erin williams':          '6363660657',
+  'erin sutherland':        '6363660657',
+  'giovanni madriz':        '6363660642',
+  'jennifer slee':          '6363660533',
+  'johnathan sanders':      '6363660655',
+  'jonathan townley':       '6363660597',
+  'kacie boyer':            '6363660595',
+  'kimberley talbott':      '6363660574',
+  'lonnie vanhorn':         '6363660665',
+  'mike herzogenrath':      '6363660528',
+  'mindie strickland':      '6363660545',
+  'patricia hunt':          '6363660523',
+  'payton midiri':          '6363660596',
+  'rebecca menke':          '6363660684',
+  'riley dobrinic':         '6363660693',
+  'robert allinger':        '6363660570',
+  'ryan whitley':           '6363660658',
+  'susan eriks':            '6362291001',
+  'sydney porter':          '6363660649',
+  'tony wattanaparuda':     '6363660524',
+  'travis boyer':           '6363660653',
+};
+
 const POLICY_COLORS = [
   { bg: '#1a2a4a', accent: '#d4a017', label: '#8aaad4' },
   { bg: '#1a4a6e', accent: '#90d0f0', label: '#90d0f0' },
@@ -267,6 +353,23 @@ const POLICY_COLORS = [
 
 let clientData = null;
 let primaryPolicyNumber = '';
+let previousScreen = 'home';
+
+function getAgentPhone(agentName) {
+  if (!agentName) return '8882155740';
+  const key = agentName.toLowerCase()
+    .replace(/,/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  // Try full name
+  if (AGENT_PHONES[key]) return AGENT_PHONES[key];
+  // Try first name only match
+  const parts = key.split(' ');
+  for (const [k, v] of Object.entries(AGENT_PHONES)) {
+    if (parts.some(p => k.includes(p) && p.length > 3)) return v;
+  }
+  return '8882155740';
+}
 
 async function loadClient() {
   try {
@@ -275,6 +378,7 @@ async function loadClient() {
     if (!res.ok) throw new Error(data.error || 'Could not load your data');
     clientData = data;
     renderApp(data);
+    showHomeBanner();
   } catch(e) {
     document.getElementById('greeting').textContent = 'Could not load coverage';
     document.getElementById('header-sub').textContent = 'Please call (888) 215-5740';
@@ -282,18 +386,29 @@ async function loadClient() {
   }
 }
 
+function showHomeBanner() {
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (!isStandalone && !localStorage.getItem('banner-dismissed')) {
+    document.getElementById('home-banner').style.display = 'flex';
+  }
+}
+
+function dismissBanner() {
+  document.getElementById('home-banner').style.display = 'none';
+  try { localStorage.setItem('banner-dismissed', '1'); } catch(e) {}
+}
+
 function renderApp(data) {
   const firstName = data.firstName || data.name.split(' ')[0];
   document.getElementById('greeting').textContent = 'Hello, ' + firstName + ' 👋';
   document.getElementById('header-sub').textContent = 'Your Medicare coverage at a glance';
 
-  // Find active MA plan for home screen
-  const maPolicy = data.policies.find(p => 
-    p.type && p.type.toLowerCase().includes('medicare advantage') && 
+  const maPolicy = data.policies.find(p =>
+    p.type && p.type.toLowerCase().includes('medicare advantage') &&
     p.status && (p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'enrolled')
-  ) || data.policies.find(p => 
-    p.type && p.type.toLowerCase().includes('medicare advantage')
-  ) || data.policies.find(p => p.status && p.status.toLowerCase() === 'active') || data.policies[0];
+  ) || data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'))
+    || data.policies.find(p => p.status && p.status.toLowerCase() === 'active')
+    || data.policies[0];
 
   if (maPolicy) {
     const planDisplayName = maPolicy.carrier ? maPolicy.carrier + ' Medicare Advantage' : (maPolicy.type || maPolicy.name);
@@ -310,15 +425,13 @@ function renderApp(data) {
   document.getElementById('agent-initials').textContent = initials;
   document.getElementById('agent-name').textContent = agentName;
 
-  // Wire agent phone from Zoho owner email domain to lookup — for now use office number
-  // Agent direct line will be added when we store it in Zoho
-  const agentPhone = data.agentPhone || '8882155740';
+  const agentPhone = getAgentPhone(agentName);
   document.getElementById('agent-call').href = 'tel:' + agentPhone;
   document.getElementById('agent-text').href = 'sms:' + agentPhone;
+
   const eobBtn = document.getElementById('eob-call-btn');
   if (eobBtn) {
     eobBtn.href = 'tel:' + agentPhone;
-    // Handle "Last, First" format from Zoho
     let displayName = 'Your Agent';
     if (agentName && agentName !== 'Your Agent') {
       if (agentName.includes(',')) {
@@ -344,40 +457,69 @@ function renderPolicies(data) {
     container.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">📋</div><div style="font-size:16px;color:#6b7fa0;">No policies found.<br>Call your agent for help.</div></div>';
     return;
   }
-  const total = data.policies.reduce((sum, p) => {
-    const amount = parseFloat(p.premium) || 0;
-    const isMA = p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
-    return sum + (isMA && Math.round(amount) === 25 ? 0 : amount);
-  }, 0);
-  let html = '';
 
-  data.policies.forEach((p, i) => {
-    const color = POLICY_COLORS[i % POLICY_COLORS.length];
-    const carrierPhone = p.carrierPhone || '';
-    html += `<div class="policy-card">
+  const sorted = [...data.policies].filter(p => {
+    const st = (p.status || '').toLowerCase();
+    return st !== 'cancelled' && st !== 'canceled';
+  }).sort((a, b) => {
+    const isMA = p => p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
+    if (isMA(a) && !isMA(b)) return -1;
+    if (!isMA(a) && isMA(b)) return 1;
+    const rank = s => {
+      const st = (s.status || '').toLowerCase();
+      if (st === 'active' || st === 'enrolled') return 0;
+      if (st === 'pending') return 1;
+      return 2;
+    };
+    return rank(a) - rank(b);
+  });
+
+  let html = '';
+  let colorIndex = 0;
+
+  sorted.forEach((p, i) => {
+    const isPending = p.status && p.status.toLowerCase() === 'pending';
+    const color = POLICY_COLORS[colorIndex % POLICY_COLORS.length];
+    colorIndex++;
+    const showMapd = p.mapdPlanNumber && p.mapdPlanNumber !== 'n/a';
+    const statusBadge = isPending
+      ? `<span style="font-size:11px;border-radius:6px;padding:3px 9px;font-weight:500;background:#fef6e4;color:#8a5e00;">Pending</span>`
+      : `<span class="badge badge-green">${p.status || 'Active'}</span>`;
+
+    html += `<div class="policy-card" onclick="togglePolicy(${i})">
       <div class="policy-header" style="background:${color.bg};">
         <div class="policy-header-left">
           <div class="policy-type" style="color:${color.accent};">${p.type || 'Insurance Policy'}</div>
-          <div class="policy-name" style="color:#fff;">${p.name || p.carrier}</div>
+          <div class="policy-name" style="color:#fff;">${p.carrier || p.name}</div>
         </div>
-        <div class="policy-header-right">
-          ${p.premium ? `<div class="policy-premium-label" style="color:${color.label};">Monthly</div><div class="policy-premium" style="color:#fff;">$${displayPremium(p.premium, p.type)}</div>` : ''}
+        <div class="policy-header-right" style="display:flex;align-items:center;gap:8px;">
+          ${p.premium ? `<div><div class="policy-premium-label" style="color:${color.label};">Monthly</div><div class="policy-premium" style="color:#fff;">$${displayPremium(p.premium, p.type)}</div></div>` : ''}
+          <span class="policy-chevron" id="chevron-${i}">▼</span>
         </div>
       </div>
-      <div class="policy-body">
+      <div class="policy-body" id="policy-body-${i}">
         ${p.carrier ? `<div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">${p.carrier}</span></div>` : ''}
-        ${p.mapdPlanNumber ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
+        ${showMapd ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
         ${p.policyNumber ? `<div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">${p.policyNumber}</span></div>` : ''}
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
-
-        <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">${p.status || 'Active'}</span></div>
+        <div class="policy-row"><span class="policy-label">Status</span>${statusBadge}</div>
         ${p.agentName ? `<div class="policy-row"><span class="policy-label">Your agent</span><span class="policy-val">${p.agentName}</span></div>` : ''}
-        ${p.carrierPhone ? `<div class="policy-row"><span class="policy-label">Carrier phone</span><a href="tel:${p.carrierPhone}" style="font-size:13px;font-weight:500;color:var(--navy);text-decoration:none;">${p.carrierPhone}</a></div>` : ''}
+        ${p.premium && parseFloat(p.premium) > 0 && !(p.type && p.type.toLowerCase().includes('medicare advantage') && Math.round(parseFloat(p.premium)) === 25) ? `<div class="policy-row"><span class="policy-label">Monthly premium</span><span class="policy-val">$${displayPremium(p.premium, p.type)}</span></div>` : ''}
       </div>
     </div>`;
   });
+
   html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
+
   container.innerHTML = html;
+}
+
+function togglePolicy(i) {
+  const body = document.getElementById('policy-body-' + i);
+  const chevron = document.getElementById('chevron-' + i);
+  if (!body) return;
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
 }
 
 function renderProfile(data) {
@@ -396,40 +538,34 @@ function displayPremium(premium, type) {
   const amount = parseFloat(premium);
   if (!amount && amount !== 0) return null;
   const isMA = type && (type.toLowerCase().includes('medicare advantage') || type.toLowerCase().includes('mapd'));
-  if (isMA && Math.round(amount) === 25) return '0.00';
-  return amount.toFixed(2);
+  if (isMA && Math.round(amount) === 25) return '0';
+  return amount.toFixed(0);
 }
 
 function formatDate(d) {
   if (!d) return '—';
   try {
-    // Parse date parts directly to avoid timezone shifting
     const parts = d.split('T')[0].split('-');
     if (parts.length === 3) {
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]) + ', ' + parts[0];
     }
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-  catch(e) { return d; }
+  } catch(e) { return d; }
 }
 
 function goTo(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
-  document.getElementById('nav-' + screen).classList.add('active');
+  const navEl = document.getElementById('nav-' + screen);
+  if (navEl) navEl.classList.add('active');
 }
 
 function handleEobPhoto(input) {
   if (input.files && input.files[0]) {
     showToast('Photo received — your agent will explain this EOB!');
   }
-}
-
-function copyId() {
-  navigator.clipboard.writeText(primaryPolicyNumber).catch(() => {});
-  showToast('MAPD plan number copied!');
 }
 
 function showToast(msg) {

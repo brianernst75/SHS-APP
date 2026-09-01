@@ -73,24 +73,80 @@ function zohoGet(path, token) {
   });
 }
 
-async function getClientData(contactId) {
+async function getClientData(anyId) {
   const token = await getAccessToken();
+  let contact = null;
+  let contactId = anyId;
 
-  // Fetch contact - use fields parameter to ensure data returns
+  // Step 1: Try as a Contact directly
+  console.log('Trying as Contact:', anyId);
   const contactRes = await zohoGet(
-    `/crm/v6/Contacts/${contactId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
+    `/crm/v6/Contacts/${anyId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
     token
   );
-  console.log('Contact response:', JSON.stringify(contactRes).substring(0, 300));
-  if (!contactRes.data || !contactRes.data[0]) throw new Error('Contact not found - ID: ' + contactId);
-  const contact = contactRes.data[0];
+  if (contactRes.data && contactRes.data[0]) {
+    contact = contactRes.data[0];
+    contactId = contact.id;
+    console.log('Found as Contact:', contact.First_Name, contact.Last_Name);
+  }
 
-  // Fetch linked policies from Potentials
+  // Step 2: Try as a Potential (policy) — find the linked Contact
+  if (!contact) {
+    console.log('Trying as Potential:', anyId);
+    const potentialRes = await zohoGet(
+      `/crm/v6/Potentials/${anyId}?fields=Deal_Name,Contact_Name`,
+      token
+    );
+    if (potentialRes.data && potentialRes.data[0] && potentialRes.data[0].Contact_Name) {
+      const linkedContactId = potentialRes.data[0].Contact_Name.id;
+      console.log('Found as Potential, linked Contact ID:', linkedContactId);
+      const linkedContactRes = await zohoGet(
+        `/crm/v6/Contacts/${linkedContactId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
+        token
+      );
+      if (linkedContactRes.data && linkedContactRes.data[0]) {
+        contact = linkedContactRes.data[0];
+        contactId = linkedContactId;
+        console.log('Found Contact via Potential:', contact.First_Name, contact.Last_Name);
+      }
+    }
+  }
+
+  // Step 3: Try as a Lead
+  if (!contact) {
+    console.log('Trying as Lead:', anyId);
+    const leadRes = await zohoGet(
+      `/crm/v6/Leads/${anyId}?fields=First_Name,Last_Name,Phone,Mobile,Email,City,State,Owner`,
+      token
+    );
+    if (leadRes.data && leadRes.data[0]) {
+      const lead = leadRes.data[0];
+      console.log('Found as Lead:', lead.First_Name, lead.Last_Name);
+      // Return lead with no policies
+      return {
+        id: lead.id,
+        name: (lead.First_Name || '') + ' ' + (lead.Last_Name || ''),
+        firstName: lead.First_Name || '',
+        phone: lead.Phone || lead.Mobile || '',
+        mobile: lead.Mobile || '',
+        email: lead.Email || '',
+        dob: '',
+        address: [lead.City, lead.State].filter(Boolean).join(', '),
+        medicareId: '',
+        agent: lead.Owner ? lead.Owner.name : 'Your Agent',
+        policies: []
+      };
+    }
+  }
+
+  if (!contact) throw new Error('Could not find a Contact, Potential, or Lead with that ID. Please check the ID and try again.');
+
+  // Fetch all linked policies from Potentials
   const policiesRes = await zohoGet(
     `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Stage,Policy_Number,Monthly_Premium,Closing_Date&per_page=20`,
     token
   );
-  console.log('Policies response:', JSON.stringify(policiesRes).substring(0, 300));
+  console.log('Policies found:', policiesRes.data ? policiesRes.data.length : 0);
   const policies = policiesRes.data || [];
 
   return {

@@ -300,6 +300,17 @@
   .setting-label { font-size: 15px; color: var(--text); }
   .setting-val { font-size: 14px; color: var(--text-muted); }
 
+  /* ── Policy rows ── */
+  .policy-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); }
+  .policy-row:last-child { border-bottom:none; }
+  .policy-label { font-size:13px; color:var(--text-muted); }
+  .policy-val { font-size:13px; font-weight:500; color:var(--text); }
+
+  /* ── Nav — 6 items needs smaller text ── */
+  .nav { padding: 6px 0 18px; }
+  .nav-label { font-size: 9px; }
+  .nav-icon { font-size: 20px; }
+
   /* ── Animations ── */
   @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
   .screen.active .scroll > * { animation: slideUp 0.25s ease both; }
@@ -672,6 +683,116 @@
     </div>
   </div>
 
+  <!-- ══ POLICIES SCREEN ══ -->
+  <div class="screen" id="screen-policies">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">My Policies</div>
+      <div class="header-sub">All your coverage in one place</div>
+    </div>
+    <div class="scroll">
+
+      <div style="background:var(--green-bg); border-radius:var(--radius); padding:12px 14px; border:1px solid #b0dfc0;">
+        <div style="font-size:12px; color:var(--green); font-weight:600; margin-bottom:2px;">Total monthly premiums</div>
+        <div style="font-size:28px; font-weight:700; color:var(--navy);">$127.40</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">across all your policies with SHS</div>
+      </div>
+
+      <!-- Medicare Advantage -->
+      <div class="policy-card" style="background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden;">
+        <div style="background:var(--navy); padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:10px; color:var(--gold); font-weight:700; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:3px;">Medicare Advantage</div>
+            <div style="font-size:16px; color:#fff; font-weight:600;">Humana Gold Plus H5619</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; color:#8aaad4;">Monthly</div>
+            <div style="font-size:20px; color:var(--gold); font-weight:700;">$0</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+          <div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">H5619-00123-4</span></div>
+          <div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">Humana</span></div>
+          <div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">Jan 1, 2026</span></div>
+          <div class="policy-row"><span class="policy-label">Renewal date</span><span class="policy-val">Dec 31, 2026</span></div>
+          <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">Active</span></div>
+        </div>
+      </div>
+
+      <!-- Hospital Indemnity -->
+      <div class="policy-card" style="background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden;">
+        <div style="background:#1a4a6e; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:10px; color:#90d0f0; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:3px;">Hospital Indemnity</div>
+            <div style="font-size:16px; color:#fff; font-weight:600;">Cigna Supplemental Plus</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; color:#90d0f0;">Monthly</div>
+            <div style="font-size:20px; color:#fff; font-weight:700;">$48.20</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+          <div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">CGN-8847-2201</span></div>
+          <div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">Cigna</span></div>
+          <div class="policy-row"><span class="policy-label">Hospital benefit</span><span class="policy-val">$250/day</span></div>
+          <div class="policy-row"><span class="policy-label">ICU benefit</span><span class="policy-val">$500/day</span></div>
+          <div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">Mar 1, 2024</span></div>
+          <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">Active</span></div>
+        </div>
+      </div>
+
+      <!-- Cancer Coverage -->
+      <div class="policy-card" style="background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden;">
+        <div style="background:#6e1a1a; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:10px; color:#f0a0a0; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:3px;">First Diagnosis Cancer</div>
+            <div style="font-size:16px; color:#fff; font-weight:600;">Mutual of Omaha Cancer Plus</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; color:#f0a0a0;">Monthly</div>
+            <div style="font-size:20px; color:#fff; font-weight:700;">$42.10</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+          <div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">MOO-44821-C</span></div>
+          <div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">Mutual of Omaha</span></div>
+          <div class="policy-row"><span class="policy-label">First diagnosis benefit</span><span class="policy-val">$10,000 lump sum</span></div>
+          <div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">Mar 1, 2024</span></div>
+          <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">Active</span></div>
+        </div>
+      </div>
+
+      <!-- Final Expense Life -->
+      <div class="policy-card" style="background:var(--white); border-radius:var(--radius); border:1px solid var(--border); overflow:hidden;">
+        <div style="background:#3a2a6e; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:10px; color:#c0b0f0; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:3px;">Final Expense Life Insurance</div>
+            <div style="font-size:16px; color:#fff; font-weight:600;">Foresters Life Select</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; color:#c0b0f0;">Monthly</div>
+            <div style="font-size:20px; color:#fff; font-weight:700;">$37.10</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+          <div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">FOR-772941-L</span></div>
+          <div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">Foresters Financial</span></div>
+          <div class="policy-row"><span class="policy-label">Death benefit</span><span class="policy-val">$15,000</span></div>
+          <div class="policy-row"><span class="policy-label">Beneficiary</span><span class="policy-val">Robert Johnson</span></div>
+          <div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">Jun 1, 2023</span></div>
+          <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">Active</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--navy); border-color:var(--navy);">
+        <div style="color:var(--gold); font-size:11px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; margin-bottom:8px;">Need to add a policy or have questions?</div>
+        <div style="color:#8aaad4; font-size:13px; margin-bottom:12px; line-height:1.5;">Your agent can review all your coverage and make sure there are no gaps.</div>
+        <a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Jane Smith</a>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ══ BOTTOM NAV ══ -->
   <nav class="nav">
     <button class="nav-item active" onclick="goTo('home')" id="nav-home">
@@ -681,6 +802,10 @@
     <button class="nav-item" onclick="goTo('benefits')" id="nav-benefits">
       <span class="nav-icon">💊</span>
       <span class="nav-label">Benefits</span>
+    </button>
+    <button class="nav-item" onclick="goTo('policies')" id="nav-policies">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Policies</span>
     </button>
     <button class="nav-item" onclick="goTo('eob')" id="nav-eob">
       <span class="nav-icon">📄</span>

@@ -81,7 +81,7 @@ async function getClientData(anyId) {
   // Step 1: Try as a Contact directly
   console.log('Trying as Contact:', anyId);
   const contactRes = await zohoGet(
-    `/crm/v6/Contacts/${anyId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
+    `/crm/v6/Contacts/${anyId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner,Owner_s_Phone`,
     token
   );
   if (contactRes.data && contactRes.data[0]) {
@@ -101,7 +101,7 @@ async function getClientData(anyId) {
       const linkedContactId = potentialRes.data[0].Contact_Name.id;
       console.log('Found as Potential, linked Contact ID:', linkedContactId);
       const linkedContactRes = await zohoGet(
-        `/crm/v6/Contacts/${linkedContactId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner`,
+        `/crm/v6/Contacts/${linkedContactId}?fields=First_Name,Last_Name,Phone,Mobile,Email,Date_of_Birth,Mailing_City,Mailing_State,Owner,Owner_s_Phone`,
         token
       );
       if (linkedContactRes.data && linkedContactRes.data[0]) {
@@ -160,6 +160,7 @@ async function getClientData(anyId) {
     address: [contact.Mailing_City, contact.Mailing_State].filter(Boolean).join(', '),
     medicareId: contact.Medicare_ID || contact.Medicare_Number || '',
     agent: contact.Owner ? contact.Owner.name : 'Your Agent',
+    agentPhone: contact.Owner_s_Phone || contact.Owner_Phone || '',
     policies: policies.map(p => ({
       name: p.Deal_Name || '',
       type: p.Coverage_Type || '',

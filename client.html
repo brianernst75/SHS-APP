@@ -114,7 +114,6 @@
             <div class="plan-id-label">MAPD Plan Number</div>
             <div class="plan-id-val" id="primary-policy-number">—</div>
           </div>
-          <button class="copy-btn" onclick="copyId()">Copy</button>
         </div>
         <div class="plan-meta">
           <div class="plan-meta-item">
@@ -161,15 +160,15 @@
           </div>
         </div>
         <div class="agent-btns">
-          <a href="tel:6362444415" class="btn-primary" id="agent-call">📞 Call Direct</a>
-          <a href="sms:6362444415" class="btn-secondary" id="agent-text">💬 Text</a>
+          <a href="tel:8882155740" class="btn-primary" id="agent-call">📞 Call Direct</a>
+          <a href="sms:8882155740" class="btn-secondary" id="agent-text">💬 Text</a>
         </div>
       </div>
 
-      <a href="tel:6362444415" class="hotline-card">
+      <a href="tel:8882155740" class="hotline-card">
         <div>
           <div class="hotline-label">SHS Main Office</div>
-          <div class="hotline-number">(636) 244-4415</div>
+          <div class="hotline-number">(888) 215-5740</div>
         </div>
         <div class="call-circle">📞</div>
       </a>
@@ -194,14 +193,14 @@
       <div class="header-sub">What does "This Is Not A Bill" mean?</div>
     </div>
     <div class="scroll">
-      <div style="background:var(--navy);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;" onclick="showToast('Your agent can explain any EOB — call (636) 244-4415')">
+      <div style="background:var(--navy);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;" onclick="showToast('Your agent can explain any EOB — call (888) 215-5740')">
         <div style="width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,0.2);border:2px dashed var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;">📷</div>
         <div style="color:#fff;font-size:16px;font-weight:600;">Scan or photo an EOB</div>
         <div style="color:#8aaad4;font-size:13px;text-align:center;">Take a picture of your Explanation of Benefits and we'll explain it in plain English</div>
       </div>
       <div class="card" style="background:#fef6e4;border-color:#f0d080;">
         <div style="font-size:14px;color:#7a5000;line-height:1.6;margin-bottom:12px;">Got a confusing letter from Medicare or your insurance company? Your agent can walk you through it in plain English.</div>
-        <a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Jane Smith</a>
+        <a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Jane Smith</a>
       </div>
       <div class="card">
         <div class="card-title">What is an EOB?</div>
@@ -234,7 +233,7 @@
         <div class="card-title">My Agent</div>
         <div class="setting-row"><span style="font-size:15px;">Agent</span><span style="font-size:14px;color:var(--text-muted);" id="profile-agent">—</span></div>
         <div class="setting-row"><span style="font-size:15px;">Agency</span><span style="font-size:14px;color:var(--text-muted);">Senior Health Solutions</span></div>
-        <div class="setting-row"><span style="font-size:15px;">Office</span><span style="font-size:14px;color:var(--text-muted);">(636) 244-4415</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Office</span><span style="font-size:14px;color:var(--text-muted);">(888) 215-5740</span></div>
       </div>
       <div style="text-align:center;padding:8px 0 4px;">
         <div style="font-size:12px;color:var(--text-muted);">Senior Health Solutions, LLC</div>
@@ -277,8 +276,8 @@ async function loadClient() {
     renderApp(data);
   } catch(e) {
     document.getElementById('greeting').textContent = 'Could not load coverage';
-    document.getElementById('header-sub').textContent = 'Please call (636) 244-4415';
-    document.getElementById('home-loading').innerHTML = '<div style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:16px;">📞</div><div style="font-size:16px;color:#6b7fa0;margin-bottom:16px;">Having trouble loading your coverage.</div><a href="tel:6362444415" style="background:#1a2a4a;color:#fff;border-radius:12px;padding:14px 28px;text-decoration:none;font-size:16px;font-weight:500;">Call SHS Office</a></div>';
+    document.getElementById('header-sub').textContent = 'Please call (888) 215-5740';
+    document.getElementById('home-loading').innerHTML = '<div style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:16px;">📞</div><div style="font-size:16px;color:#6b7fa0;margin-bottom:16px;">Having trouble loading your coverage.</div><a href="tel:8882155740" style="background:#1a2a4a;color:#fff;border-radius:12px;padding:14px 28px;text-decoration:none;font-size:16px;font-weight:500;">Call SHS Office</a></div>';
   }
 }
 
@@ -312,9 +311,14 @@ function renderApp(data) {
 
   // Wire agent phone from Zoho owner email domain to lookup — for now use office number
   // Agent direct line will be added when we store it in Zoho
-  const agentPhone = data.agentPhone || '6362444415';
+  const agentPhone = data.agentPhone || '8882155740';
   document.getElementById('agent-call').href = 'tel:' + agentPhone;
   document.getElementById('agent-text').href = 'sms:' + agentPhone;
+  const eobBtn = document.getElementById('eob-call-btn');
+  if (eobBtn) { 
+    eobBtn.href = 'tel:' + agentPhone;
+    eobBtn.textContent = '📞 Call ' + agentName.split(' ')[0];
+  }
 
   document.getElementById('home-loading').style.display = 'none';
   document.getElementById('home-content').style.display = 'flex';
@@ -362,7 +366,7 @@ function renderPolicies(data) {
       </div>
     </div>`;
   });
-  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
+  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
   container.innerHTML = html;
 }
 
@@ -405,6 +409,15 @@ function goTo(screen) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
   document.getElementById('nav-' + screen).classList.add('active');
+}
+
+function openCamera() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.capture = 'environment';
+  input.onchange = () => showToast('Photo received — EOB explanation coming soon!');
+  input.click();
 }
 
 function copyId() {

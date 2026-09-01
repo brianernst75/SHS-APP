@@ -19,10 +19,10 @@
   html, body { height: 100%; overflow: hidden; background: var(--navy-dark); }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; color: var(--text); }
   .app { max-width: 430px; margin: 0 auto; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
-  .header { background: var(--navy); padding: 48px 20px 14px; flex-shrink: 0; }
+  .header { background: var(--navy); padding: env(safe-area-inset-top, 14px) 20px 14px; padding-top: max(env(safe-area-inset-top), 14px); flex-shrink: 0; }
   .header-brand { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
-  .header-title { color: #fff; font-size: 22px; font-weight: 600; line-height: 1.2; }
-  .header-sub { color: #8aaad4; font-size: 13px; margin-top: 4px; }
+  .header-title { color: #fff; font-size: 20px; font-weight: 600; line-height: 1.2; }
+  .header-sub { color: #8aaad4; font-size: 12px; margin-top: 2px; }
   .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   .screen.active { display: flex; }
   .scroll { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
@@ -30,16 +30,16 @@
   .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
   .card-title { font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6; }
   .plan-card { background: var(--navy); border-radius: var(--radius); padding: 12px 14px; color: #fff; }
-  .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
-  .plan-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+  .plan-name { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.2; }
   .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .plan-id-label { font-size: 10px; color: var(--gold); margin-bottom: 3px; }
   .plan-id-val { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
   .copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 12px; cursor: pointer; }
   .plan-meta { display: flex; gap: 0; }
   .plan-meta-item { flex: 1; }
-  .plan-meta-label { font-size: 10px; color: #8aaad4; margin-bottom: 2px; }
-  .plan-meta-val { font-size: 13px; font-weight: 500; }
+  .plan-meta-label { font-size: 9px; color: #8aaad4; margin-bottom: 1px; }
+  .plan-meta-val { font-size: 12px; font-weight: 500; }
   .agent-row { display: flex; align-items: center; gap: 12px; }
   .agent-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .agent-name { font-size: 16px; font-weight: 600; }
@@ -70,7 +70,7 @@
   .total-label { font-size: 12px; color: var(--green); font-weight: 600; margin-bottom: 2px; }
   .total-amount { font-size: 30px; font-weight: 700; color: var(--navy); }
   .total-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 6px 0 20px; flex-shrink: 0; }
+  .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 6px 0 env(safe-area-inset-bottom, 16px); flex-shrink: 0; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; border: none; background: none; }
   .nav-icon { font-size: 22px; color: #b0bcd4; }
   .nav-label { font-size: 9px; color: #b0bcd4; font-weight: 500; }
@@ -318,7 +318,16 @@ function renderApp(data) {
   const eobBtn = document.getElementById('eob-call-btn');
   if (eobBtn) {
     eobBtn.href = 'tel:' + agentPhone;
-    eobBtn.textContent = '📞 Call ' + (agentName !== 'Your Agent' ? agentName.split(',')[0].trim().split(' ').pop() : 'Your Agent');
+    // Handle "Last, First" format from Zoho
+    let displayName = 'Your Agent';
+    if (agentName && agentName !== 'Your Agent') {
+      if (agentName.includes(',')) {
+        displayName = agentName.split(',')[1].trim().split(' ')[0];
+      } else {
+        displayName = agentName.split(' ')[0];
+      }
+    }
+    eobBtn.textContent = '📞 Call ' + displayName;
   }
 
   document.getElementById('home-loading').style.display = 'none';

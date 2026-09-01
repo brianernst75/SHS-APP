@@ -19,22 +19,22 @@
   html, body { height: 100%; overflow: hidden; background: var(--navy-dark); }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; color: var(--text); }
   .app { max-width: 430px; margin: 0 auto; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
-  .header { background: var(--navy); padding: 52px 20px 20px; flex-shrink: 0; }
+  .header { background: var(--navy); padding: 48px 20px 14px; flex-shrink: 0; }
   .header-brand { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
   .header-title { color: #fff; font-size: 22px; font-weight: 600; line-height: 1.2; }
   .header-sub { color: #8aaad4; font-size: 13px; margin-top: 4px; }
   .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
   .screen.active { display: flex; }
-  .scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 90px; }
+  .scroll { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
   .scroll::-webkit-scrollbar { display: none; }
   .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
   .card-title { font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6; }
-  .plan-card { background: var(--navy); border-radius: var(--radius); padding: 18px; color: #fff; }
+  .plan-card { background: var(--navy); border-radius: var(--radius); padding: 12px 14px; color: #fff; }
   .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
-  .plan-name { font-size: 17px; font-weight: 600; margin-bottom: 14px; line-height: 1.3; }
-  .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .plan-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .plan-id-label { font-size: 10px; color: var(--gold); margin-bottom: 3px; }
-  .plan-id-val { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+  .plan-id-val { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
   .copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 12px; cursor: pointer; }
   .plan-meta { display: flex; gap: 0; }
   .plan-meta-item { flex: 1; }
@@ -47,10 +47,10 @@
   .agent-btns { display: flex; gap: 8px; margin-top: 12px; }
   .btn-primary { background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
   .btn-secondary { background: var(--bg); color: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
-  .hotline-card { background: var(--navy); border-radius: var(--radius); padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; }
+  .hotline-card { background: var(--navy); border-radius: var(--radius); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; }
   .hotline-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
-  .hotline-number { font-size: 22px; color: #fff; font-weight: 600; }
-  .call-circle { width: 48px; height: 48px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .hotline-number { font-size: 18px; color: #fff; font-weight: 600; }
+  .call-circle { width: 38px; height: 38px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .policy-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 0; }
   .policy-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .policy-header-left { flex: 1; min-width: 0; overflow: hidden; }
@@ -131,22 +131,22 @@
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('policies')">
-          <div style="width:44px;height:44px;border-radius:13px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:22px;">📋</div>
-          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Policies</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('policies')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
+          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Policies</div>
         </button>
-        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('eob')">
-          <div style="width:44px;height:44px;border-radius:13px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:22px;">📄</div>
-          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">Explain My Bill</div>
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('eob')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:18px;">📄</div>
+          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">Explain My Bill</div>
         </button>
-        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="showToast('Card wallet coming soon!')">
-          <div style="width:44px;height:44px;border-radius:13px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:22px;">💳</div>
-          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Cards</div>
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="showToast('Card wallet coming soon!')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:18px;">💳</div>
+          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Cards</div>
         </button>
-        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;" onclick="goTo('profile')">
-          <div style="width:44px;height:44px;border-radius:13px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:22px;">👤</div>
-          <div style="font-size:13px;font-weight:500;color:#1a2a4a;">My Profile</div>
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('profile')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
+          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Profile</div>
         </button>
       </div>
 

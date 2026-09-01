@@ -295,7 +295,11 @@ function renderPolicies(data) {
     container.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">📋</div><div style="font-size:16px;color:#6b7fa0;">No policies found.<br>Call your agent for help.</div></div>';
     return;
   }
-  const total = data.policies.reduce((sum, p) => sum + (parseFloat(p.premium) || 0), 0);
+  const total = data.policies.reduce((sum, p) => {
+    const amount = parseFloat(p.premium) || 0;
+    const isMA = p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
+    return sum + (isMA && Math.round(amount) === 25 ? 0 : amount);
+  }, 0);
   let html = '';
   if (total > 0) {
     html += `<div class="total-card"><div class="total-label">Total monthly premiums</div><div class="total-amount">$${total.toFixed(2)}</div><div class="total-sub">across all your SHS policies</div></div>`;
@@ -310,7 +314,7 @@ function renderPolicies(data) {
           <div class="policy-name" style="color:#fff;">${p.name || p.carrier}</div>
         </div>
         <div class="policy-header-right">
-          ${p.premium ? `<div class="policy-premium-label" style="color:${color.label};">Monthly</div><div class="policy-premium" style="color:#fff;">$${parseFloat(p.premium).toFixed(2)}</div>` : ''}
+          ${p.premium ? `<div class="policy-premium-label" style="color:${color.label};">Monthly</div><div class="policy-premium" style="color:#fff;">$${displayPremium(p.premium, p.type)}</div>` : ''}
         </div>
       </div>
       <div class="policy-body">
@@ -320,6 +324,7 @@ function renderPolicies(data) {
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
         ${p.renewalDate ? `<div class="policy-row"><span class="policy-label">Renewal date</span><span class="policy-val">${formatDate(p.renewalDate)}</span></div>` : ''}
         <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">${p.status || 'Active'}</span></div>
+        ${p.agentName ? `<div class="policy-row"><span class="policy-label">Your agent</span><span class="policy-val">${p.agentName}</span></div>` : ''}
         ${p.carrierPhone ? `<div class="policy-row"><span class="policy-label">Carrier phone</span><a href="tel:${p.carrierPhone}" style="font-size:13px;font-weight:500;color:var(--navy);text-decoration:none;">${p.carrierPhone}</a></div>` : ''}
       </div>
     </div>`;
@@ -338,6 +343,14 @@ function renderProfile(data) {
   document.getElementById('profile-email').textContent = data.email || '—';
   document.getElementById('profile-address').textContent = data.address || '—';
   document.getElementById('profile-agent').textContent = data.agent || 'Your Agent';
+}
+
+function displayPremium(premium, type) {
+  const amount = parseFloat(premium);
+  if (!amount && amount !== 0) return null;
+  const isMA = type && (type.toLowerCase().includes('medicare advantage') || type.toLowerCase().includes('mapd'));
+  if (isMA && Math.round(amount) === 25) return '0.00';
+  return amount.toFixed(2);
 }
 
 function formatDate(d) {

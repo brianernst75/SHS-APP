@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SHS Medicare">
+<meta name="theme-color" content="#1a2a4a">
+<title>Senior Health Solutions</title>
+<style>
+  :root {
+    --navy: #1a2a4a;
+    --navy-dark: #0d1c35;
+    --navy-light: #2a4070;
+    --gold: #d4a017;
+    --gold-light: #f5d76e;
+    --green: #1a6e42;
+    --green-bg: #e4f6ee;
+    --red: #a03030;
+    --red-bg: #fce8e8;
+    --blue-bg: #e8f0fa;
+    --gray: #6b7fa0;
+    --border: #e0e6f0;
+    --bg: #f0f3f8;
+    --white: #ffffff;
+    --text: #1a2a4a;
+    --text-muted: #6b7fa0;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: var(--navy-dark); }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--navy);
+    padding: 52px 20px 20px;
+    flex-shrink: 0;
+  }
+  .header-brand { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
+  .header-title { color: #fff; font-size: 22px; font-weight: 600; line-height: 1.2; }
+  .header-sub { color: #8aaad4; font-size: 13px; margin-top: 4px; }
+
+  /* ── Screens ── */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  .scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 90px; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+  .card-title { font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6; }
+
+  /* ── Plan card ── */
+  .plan-card {
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 18px;
+    color: #fff;
+  }
+  .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+  .plan-name { font-size: 17px; font-weight: 600; margin-bottom: 14px; line-height: 1.3; }
+  .plan-id-box {
+    background: rgba(212,160,23,0.15);
+    border: 1px solid rgba(212,160,23,0.4);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .plan-id-label { font-size: 10px; color: var(--gold); margin-bottom: 3px; }
+  .plan-id-val { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+  .copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 12px; cursor: pointer; }
+  .plan-meta { display: flex; gap: 0; }
+  .plan-meta-item { flex: 1; }
+  .plan-meta-label { font-size: 10px; color: #8aaad4; margin-bottom: 2px; }
+  .plan-meta-val { font-size: 13px; font-weight: 500; }
+
+  /* ── Quick grid ── */
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quick-btn {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  .quick-btn:active { background: var(--bg); }
+  .quick-icon {
+    width: 44px; height: 44px;
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .quick-label { font-size: 13px; font-weight: 500; color: var(--text); text-align: center; line-height: 1.3; }
+
+  /* ── Agent card ── */
+  .agent-row { display: flex; align-items: center; gap: 12px; }
+  .agent-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--gold);
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .agent-name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .agent-role { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .agent-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-primary {
+    background: var(--navy); color: #fff;
+    border: none; border-radius: 10px;
+    padding: 10px 18px; font-size: 14px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    text-decoration: none;
+  }
+  .btn-secondary {
+    background: var(--bg); color: var(--navy);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 18px; font-size: 14px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    text-decoration: none;
+  }
+  .hotline-card {
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hotline-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
+  .hotline-number { font-size: 22px; color: #fff; font-weight: 600; }
+  .call-circle {
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; cursor: pointer; text-decoration: none;
+  }
+
+  /* ── Benefits ── */
+  .benefit-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .benefit-chip {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .benefit-amount { font-size: 18px; font-weight: 700; color: var(--navy); }
+  .benefit-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .benefit-used { font-size: 11px; color: var(--gold); font-weight: 500; margin-top: 3px; }
+  .copay-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .copay-row:last-child { border-bottom: none; }
+  .copay-label { font-size: 14px; color: var(--text); }
+  .copay-val { font-size: 15px; font-weight: 600; color: var(--navy); }
+  .badge { font-size: 11px; border-radius: 6px; padding: 3px 9px; font-weight: 500; }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-gold { background: #fef6e4; color: #8a5e00; }
+  .badge-blue { background: var(--blue-bg); color: var(--navy); }
+  .prev-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .prev-row:last-child { border-bottom: none; }
+
+  /* ── EOB ── */
+  .scan-area {
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+  .scan-icon-wrap {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(212,160,23,0.2);
+    border: 2px dashed var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .scan-title { color: #fff; font-size: 16px; font-weight: 600; }
+  .scan-sub { color: #8aaad4; font-size: 13px; text-align: center; }
+  .eob-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; }
+  .eob-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+  .eob-title-text { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+  .eob-amounts { display: flex; gap: 0; }
+  .eob-amt { flex: 1; text-align: center; }
+  .eob-amt-val { font-size: 16px; font-weight: 700; }
+  .eob-amt-label { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .eob-note { border-radius: 8px; padding: 8px 10px; font-size: 12px; margin-top: 10px; line-height: 1.5; }
+
+  /* ── Cards wallet ── */
+  .card-wallet-item {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .card-inner {
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .card-type { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+  .card-holder { font-size: 16px; font-weight: 600; }
+  .card-number { font-size: 14px; letter-spacing: 1px; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .card-footer-label { font-size: 10px; opacity: 0.7; }
+  .card-footer-val { font-size: 13px; font-weight: 500; }
+  .add-card-btn {
+    background: var(--white);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .add-card-label { font-size: 14px; font-weight: 500; color: var(--navy); }
+  .add-card-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* ── Bottom nav ── */
+  .nav {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 20px;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer;
+    padding: 4px 0;
+    border: none; background: none;
+  }
+  .nav-icon { font-size: 24px; color: #b0bcd4; transition: color 0.15s; }
+  .nav-label { font-size: 10px; color: #b0bcd4; font-weight: 500; transition: color 0.15s; }
+  .nav-item.active .nav-icon { color: var(--navy); }
+  .nav-item.active .nav-label { color: var(--navy); }
+
+  /* ── Toast ── */
+  .toast {
+    position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--navy); color: #fff;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── Profile ── */
+  .profile-header { text-align: center; padding: 10px 0 4px; }
+  .profile-avatar-lg {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--gold);
+    font-size: 24px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .profile-name { font-size: 20px; font-weight: 600; }
+  .profile-plan { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { font-size: 15px; color: var(--text); }
+  .setting-val { font-size: 14px; color: var(--text-muted); }
+
+  /* ── Animations ── */
+  @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .screen.active .scroll > * { animation: slideUp 0.25s ease both; }
+  .screen.active .scroll > *:nth-child(2) { animation-delay: 0.04s; }
+  .screen.active .scroll > *:nth-child(3) { animation-delay: 0.08s; }
+  .screen.active .scroll > *:nth-child(4) { animation-delay: 0.12s; }
+  .screen.active .scroll > *:nth-child(5) { animation-delay: 0.16s; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">Good morning, Margaret 👋</div>
+      <div class="header-sub">Your Medicare coverage at a glance</div>
+    </div>
+    <div class="scroll">
+
+      <div class="plan-card">
+        <div class="plan-label">Your Active Plan</div>
+        <div class="plan-name">Humana Gold Plus H5619</div>
+        <div class="plan-id-box">
+          <div>
+            <div class="plan-id-label">Member ID</div>
+            <div class="plan-id-val">H5619-00123-4</div>
+          </div>
+          <button class="copy-btn" onclick="copyId()">Copy</button>
+        </div>
+        <div class="plan-meta">
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Effective</div>
+            <div class="plan-meta-val">Jan 1, 2026</div>
+          </div>
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Premium</div>
+            <div class="plan-meta-val">$0 / mo</div>
+          </div>
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Network</div>
+            <div class="plan-meta-val">HMO</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-grid">
+        <button class="quick-btn" onclick="goTo('benefits')">
+          <div class="quick-icon" style="background:#e8f0fa;">💊</div>
+          <div class="quick-label">My Benefits</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('eob')">
+          <div class="quick-icon" style="background:#e4f6ee;">📄</div>
+          <div class="quick-label">Explain My Bill</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('cards')">
+          <div class="quick-icon" style="background:#fef6e4;">💳</div>
+          <div class="quick-label">My Cards</div>
+        </button>
+        <button class="quick-btn" onclick="goTo('profile')">
+          <div class="quick-icon" style="background:#fce8e8;">👤</div>
+          <div class="quick-label">My Profile</div>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">My Agent</div>
+        <div class="agent-row">
+          <div class="agent-avatar">JS</div>
+          <div>
+            <div class="agent-name">Jane Smith</div>
+            <div class="agent-role">Licensed Medicare Agent</div>
+          </div>
+        </div>
+        <div class="agent-btns">
+          <a href="tel:6362444415" class="btn-primary">📞 Call Direct</a>
+          <a href="sms:6362444415" class="btn-secondary">💬 Text</a>
+        </div>
+      </div>
+
+      <a href="tel:6362444415" class="hotline-card" style="text-decoration:none;">
+        <div>
+          <div class="hotline-label">SHS Main Office</div>
+          <div class="hotline-number">(636) 244-4415</div>
+        </div>
+        <div class="call-circle">📞</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- ══ BENEFITS SCREEN ══ -->
+  <div class="screen" id="screen-benefits">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">Your Benefits</div>
+      <div class="header-sub">Humana Gold Plus — 2026 plan year</div>
+    </div>
+    <div class="scroll">
+
+      <div class="card">
+        <div class="card-title">Allowance Balances</div>
+        <div class="benefit-grid">
+          <div class="benefit-chip">
+            <div class="benefit-amount">$500</div>
+            <div class="benefit-label">Dental</div>
+            <div class="benefit-used">$120 used</div>
+          </div>
+          <div class="benefit-chip">
+            <div class="benefit-amount">$200</div>
+            <div class="benefit-label">Vision</div>
+            <div class="benefit-used">$0 used</div>
+          </div>
+          <div class="benefit-chip">
+            <div class="benefit-amount">$1,500</div>
+            <div class="benefit-label">Hearing</div>
+            <div class="benefit-used">$0 used</div>
+          </div>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <div class="benefit-chip" style="flex:1">
+            <div class="benefit-amount">$55</div>
+            <div class="benefit-label">OTC Remaining</div>
+            <div class="benefit-used">of $100/quarter</div>
+          </div>
+          <div class="benefit-chip" style="flex:1">
+            <div class="benefit-amount">$0</div>
+            <div class="benefit-label">Monthly Premium</div>
+            <div class="benefit-used" style="color:var(--green);">✓ No cost</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your Copays</div>
+        <div class="copay-row"><span class="copay-label">Primary care visit</span><span class="copay-val">$0</span></div>
+        <div class="copay-row"><span class="copay-label">Specialist visit</span><span class="copay-val">$40</span></div>
+        <div class="copay-row"><span class="copay-label">Urgent care</span><span class="copay-val">$65</span></div>
+        <div class="copay-row"><span class="copay-label">Emergency room</span><span class="copay-val">$120</span></div>
+        <div class="copay-row"><span class="copay-label">Hospital (per day, days 1–5)</span><span class="copay-val">$295</span></div>
+        <div class="copay-row"><span class="copay-label">Ambulance</span><span class="copay-val">$285</span></div>
+        <div class="copay-row"><span class="copay-label">Lab work (in-network)</span><span class="copay-val">$0</span></div>
+        <div class="copay-row"><span class="copay-label">X-rays</span><span class="copay-val">$40</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Preventive Care Checklist</div>
+        <div class="prev-row">
+          <span style="font-size:14px;">Annual wellness visit</span>
+          <span class="badge badge-green">Schedule — $0</span>
+        </div>
+        <div class="prev-row">
+          <span style="font-size:14px;">Flu shot</span>
+          <span class="badge badge-gold">Due in October</span>
+        </div>
+        <div class="prev-row">
+          <span style="font-size:14px;">Mammogram</span>
+          <span class="badge badge-blue">Completed ✓</span>
+        </div>
+        <div class="prev-row">
+          <span style="font-size:14px;">Colorectal screening</span>
+          <span class="badge badge-green">Schedule — $0</span>
+        </div>
+        <div class="prev-row">
+          <span style="font-size:14px;">Bone density scan</span>
+          <span class="badge badge-blue">Completed ✓</span>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--navy); border-color:var(--navy);">
+        <div style="color:var(--gold); font-size:11px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; margin-bottom:8px;">Questions about your benefits?</div>
+        <div style="color:#8aaad4; font-size:13px; margin-bottom:12px; line-height:1.5;">Your agent can explain any benefit or find you a better plan during Open Enrollment (Oct 15 – Dec 7).</div>
+        <a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Jane Smith</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ EOB SCREEN ══ -->
+  <div class="screen" id="screen-eob">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">Explain My Bill</div>
+      <div class="header-sub">What does that "This Is Not A Bill" mean?</div>
+    </div>
+    <div class="scroll">
+
+      <div class="scan-area" onclick="showToast('Camera feature coming soon! Your agent can help explain any EOB by phone.')">
+        <div class="scan-icon-wrap">📷</div>
+        <div class="scan-title">Scan or photo an EOB</div>
+        <div class="scan-sub">Take a picture of your Explanation of Benefits letter and we'll explain it in plain English</div>
+      </div>
+
+      <div class="card-title" style="padding: 0 2px;">Recent explanations</div>
+
+      <div class="eob-card">
+        <div class="eob-meta">Aug 12, 2026 · Dr. Peterson – Cardiology</div>
+        <div class="eob-title-text">Specialist Office Visit</div>
+        <div class="eob-amounts">
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:#1a4aaa;">$285</div>
+            <div class="eob-amt-label">Doctor billed</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--green);">$205</div>
+            <div class="eob-amt-label">Plan paid</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--gold);">$40</div>
+            <div class="eob-amt-label">You owe</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--text-muted);">$40</div>
+            <div class="eob-amt-label">Your copay</div>
+          </div>
+        </div>
+        <div class="eob-note" style="background:var(--green-bg); color:#0f5c36;">✓ Your plan covered this correctly. You only owe your $40 specialist copay — that's all.</div>
+      </div>
+
+      <div class="eob-card">
+        <div class="eob-meta">Jul 29, 2026 · Mercy Hospital Lab</div>
+        <div class="eob-title-text">Routine Lab Work</div>
+        <div class="eob-amounts">
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:#1a4aaa;">$148</div>
+            <div class="eob-amt-label">Doctor billed</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--green);">$148</div>
+            <div class="eob-amt-label">Plan paid</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--green); font-weight:700;">$0</div>
+            <div class="eob-amt-label">You owe</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--text-muted);">Prev.</div>
+            <div class="eob-amt-label">Benefit</div>
+          </div>
+        </div>
+        <div class="eob-note" style="background:var(--green-bg); color:#0f5c36;">✓ Covered 100% as a preventive benefit. You owe nothing — do not pay if you receive a bill.</div>
+      </div>
+
+      <div class="eob-card" style="border-color:#f5c0c0;">
+        <div class="eob-meta">Jul 5, 2026 · Walgreens Pharmacy</div>
+        <div class="eob-title-text">Metoprolol (90-day supply)</div>
+        <div class="eob-amounts">
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:#1a4aaa;">$62</div>
+            <div class="eob-amt-label">Retail price</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--green);">$27</div>
+            <div class="eob-amt-label">Plan paid</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--red);">$35</div>
+            <div class="eob-amt-label">You paid</div>
+          </div>
+          <div class="eob-amt">
+            <div class="eob-amt-val" style="color:var(--text-muted);">Tier 2</div>
+            <div class="eob-amt-label">Drug tier</div>
+          </div>
+        </div>
+        <div class="eob-note" style="background:var(--red-bg); color:#802020;">⚠ Mail-order pharmacy could save you about $20/month on this drug. Ask your agent about switching.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ CARDS SCREEN ══ -->
+  <div class="screen" id="screen-cards">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">My Insurance Cards</div>
+      <div class="header-sub">Keep all your cards in one place</div>
+    </div>
+    <div class="scroll">
+
+      <div class="card-wallet-item">
+        <div class="card-inner" style="background:var(--navy); color:#fff;">
+          <div class="card-type" style="color:var(--gold);">Medicare — Part A & B</div>
+          <div class="card-holder">MARGARET A JOHNSON</div>
+          <div class="card-number">1EG4-TE5-MK72</div>
+          <div class="card-footer">
+            <div><div class="card-footer-label" style="color:#8aaad4;">Part A effective</div><div class="card-footer-val">01-01-2019</div></div>
+            <div><div class="card-footer-label" style="color:#8aaad4;">Part B effective</div><div class="card-footer-val">01-01-2019</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-wallet-item">
+        <div class="card-inner" style="background:#1a5c3a; color:#fff;">
+          <div class="card-type" style="color:#7ddfb0;">Humana — Medicare Advantage</div>
+          <div class="card-holder">Margaret Johnson</div>
+          <div class="card-number">H5619-00123-4</div>
+          <div class="card-footer">
+            <div><div class="card-footer-label" style="color:rgba(255,255,255,0.6);">Group</div><div class="card-footer-val">800001</div></div>
+            <div><div class="card-footer-label" style="color:rgba(255,255,255,0.6);">RxBin</div><div class="card-footer-val">610591</div></div>
+            <div><div class="card-footer-label" style="color:rgba(255,255,255,0.6);">RxPCN</div><div class="card-footer-val">ADV</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-card-btn" onclick="showToast('Photo card feature coming in next update!')">
+        <div style="font-size:32px;">📷</div>
+        <div class="add-card-label">Add a card photo</div>
+        <div class="add-card-sub">Tap to photograph your Medicare, insurance, or pharmacy card</div>
+      </button>
+
+      <div class="card" style="background:#fef6e4; border-color:#f0d080;">
+        <div style="font-size:13px; color:#7a5000; line-height:1.6;">
+          <strong>Lost your card?</strong> Call the SHS office and we can order a replacement or help you access a digital version from your carrier.
+        </div>
+        <a href="tel:6362444415" class="btn-primary" style="margin-top:12px; justify-content:center; background:var(--navy);">📞 (636) 244-4415</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ PROFILE SCREEN ══ -->
+  <div class="screen" id="screen-profile">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">My Profile</div>
+      <div class="header-sub">Your personal information</div>
+    </div>
+    <div class="scroll">
+
+      <div class="card">
+        <div class="profile-header">
+          <div class="profile-avatar-lg">MJ</div>
+          <div class="profile-name">Margaret Johnson</div>
+          <div class="profile-plan">Humana Gold Plus H5619</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Personal Details</div>
+        <div class="setting-row"><span class="setting-label">Date of birth</span><span class="setting-val">March 14, 1955</span></div>
+        <div class="setting-row"><span class="setting-label">Medicare number</span><span class="setting-val">1EG4-TE5-MK72</span></div>
+        <div class="setting-row"><span class="setting-label">Phone</span><span class="setting-val">(314) 555-0182</span></div>
+        <div class="setting-row"><span class="setting-label">Address</span><span class="setting-val">St. Charles, MO</span></div>
+        <div class="setting-row"><span class="setting-label">Plan year</span><span class="setting-val">2026</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Emergency Information</div>
+        <div class="setting-row"><span class="setting-label">Emergency contact</span><span class="setting-val">Robert Johnson</span></div>
+        <div class="setting-row"><span class="setting-label">Contact phone</span><span class="setting-val">(314) 555-0199</span></div>
+        <div class="setting-row"><span class="setting-label">Blood type</span><span class="setting-val">A+</span></div>
+        <div class="setting-row"><span class="setting-label">Allergies</span><span class="setting-val">Penicillin</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">My Agent</div>
+        <div class="setting-row"><span class="setting-label">Agent name</span><span class="setting-val">Jane Smith</span></div>
+        <div class="setting-row"><span class="setting-label">Direct line</span><span class="setting-val">(636) 244-4415</span></div>
+        <div class="setting-row"><span class="setting-label">Agency</span><span class="setting-val">Senior Health Solutions</span></div>
+        <div class="setting-row"><span class="setting-label">Next review</span><span class="setting-val">Oct 2026</span></div>
+      </div>
+
+      <div style="text-align:center; padding: 8px 0 4px;">
+        <div style="font-size:12px; color:var(--text-muted);">Senior Health Solutions, LLC</div>
+        <div style="font-size:12px; color:var(--text-muted);">3779 New Town Blvd, Saint Charles, MO 63301</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">App version 1.0</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <nav class="nav">
+    <button class="nav-item active" onclick="goTo('home')" id="nav-home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="goTo('benefits')" id="nav-benefits">
+      <span class="nav-icon">💊</span>
+      <span class="nav-label">Benefits</span>
+    </button>
+    <button class="nav-item" onclick="goTo('eob')" id="nav-eob">
+      <span class="nav-icon">📄</span>
+      <span class="nav-label">My Bills</span>
+    </button>
+    <button class="nav-item" onclick="goTo('cards')" id="nav-cards">
+      <span class="nav-icon">💳</span>
+      <span class="nav-label">Cards</span>
+    </button>
+    <button class="nav-item" onclick="goTo('profile')" id="nav-profile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  function goTo(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    document.getElementById('nav-' + screen).classList.add('active');
+    const headers = {
+      home: ['Senior Health Solutions', 'Good morning, Margaret 👋', 'Your Medicare coverage at a glance'],
+      benefits: ['Senior Health Solutions', 'Your Benefits', 'Humana Gold Plus — 2026 plan year'],
+      eob: ['Senior Health Solutions', 'Explain My Bill', 'What does that "This Is Not A Bill" mean?'],
+      cards: ['Senior Health Solutions', 'My Insurance Cards', 'Keep all your cards in one place'],
+      profile: ['Senior Health Solutions', 'My Profile', 'Your personal information']
+    };
+    const h = headers[screen];
+    document.querySelectorAll('.header-title').forEach((el, i) => {
+      if (el.closest('#screen-' + screen) || el.closest('.app > .header')) {}
+    });
+  }
+
+  function copyId() {
+    navigator.clipboard.writeText('H5619-00123-4').catch(() => {});
+    showToast('Member ID copied!');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SHS Medicare">
+<meta name="theme-color" content="#1a2a4a">
+<title>Senior Health Solutions</title>
+<style>
+  :root {
+    --navy: #1a2a4a; --navy-dark: #0d1c35; --gold: #d4a017;
+    --green: #1a6e42; --green-bg: #e4f6ee; --red: #a03030; --red-bg: #fce8e8;
+    --gray: #6b7fa0; --border: #e0e6f0; --bg: #f0f3f8; --white: #ffffff;
+    --text: #1a2a4a; --text-muted: #6b7fa0; --radius: 14px; --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: var(--navy-dark); }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; color: var(--text); }
+  .app { max-width: 430px; margin: 0 auto; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
+  .header { background: var(--navy); padding: 52px 20px 20px; flex-shrink: 0; }
+  .header-brand { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
+  .header-title { color: #fff; font-size: 22px; font-weight: 600; line-height: 1.2; }
+  .header-sub { color: #8aaad4; font-size: 13px; margin-top: 4px; }
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+  .scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; padding-bottom: 90px; }
+  .scroll::-webkit-scrollbar { display: none; }
+  .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; }
+  .card-title { font-size: 11px; font-weight: 700; color: var(--navy); letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; opacity: 0.6; }
+  .plan-card { background: var(--navy); border-radius: var(--radius); padding: 18px; color: #fff; }
+  .plan-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+  .plan-name { font-size: 17px; font-weight: 600; margin-bottom: 14px; line-height: 1.3; }
+  .plan-id-box { background: rgba(212,160,23,0.15); border: 1px solid rgba(212,160,23,0.4); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .plan-id-label { font-size: 10px; color: var(--gold); margin-bottom: 3px; }
+  .plan-id-val { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+  .copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 12px; cursor: pointer; }
+  .plan-meta { display: flex; gap: 0; }
+  .plan-meta-item { flex: 1; }
+  .plan-meta-label { font-size: 10px; color: #8aaad4; margin-bottom: 2px; }
+  .plan-meta-val { font-size: 13px; font-weight: 500; }
+  .agent-row { display: flex; align-items: center; gap: 12px; }
+  .agent-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .agent-name { font-size: 16px; font-weight: 600; }
+  .agent-role { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .agent-btns { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-primary { background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+  .btn-secondary { background: var(--bg); color: var(--navy); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+  .hotline-card { background: var(--navy); border-radius: var(--radius); padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; }
+  .hotline-label { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px; }
+  .hotline-number { font-size: 22px; color: #fff; font-weight: 600; }
+  .call-circle { width: 48px; height: 48px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .policy-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; margin-bottom: 0; }
+  .policy-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .policy-header-left { flex: 1; min-width: 0; overflow: hidden; }
+  .policy-header-right { flex-shrink: 0; text-align: right; }
+  .policy-type { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; }
+  .policy-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .policy-premium { font-size: 20px; font-weight: 700; white-space: nowrap; }
+  .policy-premium-label { font-size: 10px; opacity: 0.7; }
+  .policy-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 0; }
+  .policy-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .policy-row:last-child { border-bottom: none; }
+  .policy-label { font-size: 13px; color: var(--text-muted); }
+  .policy-val { font-size: 13px; font-weight: 500; color: var(--text); }
+  .badge { font-size: 11px; border-radius: 6px; padding: 3px 9px; font-weight: 500; }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .total-card { background: var(--green-bg); border-radius: var(--radius); padding: 14px 18px; border: 1px solid #b0dfc0; }
+  .total-label { font-size: 12px; color: var(--green); font-weight: 600; margin-bottom: 2px; }
+  .total-amount { font-size: 30px; font-weight: 700; color: var(--navy); }
+  .total-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 6px 0 20px; flex-shrink: 0; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; border: none; background: none; }
+  .nav-icon { font-size: 22px; color: #b0bcd4; }
+  .nav-label { font-size: 9px; color: #b0bcd4; font-weight: 500; }
+  .nav-item.active .nav-icon { color: var(--navy); }
+  .nav-item.active .nav-label { color: var(--navy); }
+  .toast { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s; white-space: nowrap; z-index: 100; }
+  .toast.show { opacity: 1; }
+  .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 16px; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e6f0; border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .loading-text { font-size: 15px; color: var(--text-muted); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .setting-row:last-child { border-bottom: none; }
+  .profile-avatar-lg { width: 72px; height: 72px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .screen.active .scroll > * { animation: slideUp 0.25s ease both; }
+  .screen.active .scroll > *:nth-child(2) { animation-delay: 0.04s; }
+  .screen.active .scroll > *:nth-child(3) { animation-delay: 0.08s; }
+  .screen.active .scroll > *:nth-child(4) { animation-delay: 0.12s; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title" id="greeting">Loading your coverage...</div>
+      <div class="header-sub" id="header-sub">Please wait</div>
+    </div>
+    <div id="home-loading" class="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading your coverage from Zoho...</div>
+    </div>
+    <div class="scroll" id="home-content" style="display:none;">
+      <div class="plan-card" id="plan-card">
+        <div class="plan-label">Your Primary Plan</div>
+        <div class="plan-name" id="primary-plan-name">—</div>
+        <div class="plan-id-box">
+          <div>
+            <div class="plan-id-label">Policy Number</div>
+            <div class="plan-id-val" id="primary-policy-number">—</div>
+          </div>
+          <button class="copy-btn" onclick="copyId()">Copy</button>
+        </div>
+        <div class="plan-meta">
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Carrier</div>
+            <div class="plan-meta-val" id="primary-carrier">—</div>
+          </div>
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Effective</div>
+            <div class="plan-meta-val" id="primary-effective">—</div>
+          </div>
+          <div class="plan-meta-item">
+            <div class="plan-meta-label">Status</div>
+            <div class="plan-meta-val" id="primary-status">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">My Agent</div>
+        <div class="agent-row">
+          <div class="agent-avatar" id="agent-initials">SHS</div>
+          <div>
+            <div class="agent-name" id="agent-name">Your Agent</div>
+            <div class="agent-role">Senior Health Solutions</div>
+          </div>
+        </div>
+        <div class="agent-btns">
+          <a href="tel:6362444415" class="btn-primary" id="agent-call">📞 Call Direct</a>
+          <a href="sms:6362444415" class="btn-secondary">💬 Text</a>
+        </div>
+      </div>
+      <a href="tel:6362444415" class="hotline-card">
+        <div>
+          <div class="hotline-label">SHS Main Office</div>
+          <div class="hotline-number">(636) 244-4415</div>
+        </div>
+        <div class="call-circle">📞</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-policies">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">My Policies</div>
+      <div class="header-sub">All your coverage in one place</div>
+    </div>
+    <div class="scroll" id="policies-content">
+      <div class="loading-screen"><div class="loading-spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-eob">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">Explain My Bill</div>
+      <div class="header-sub">What does "This Is Not A Bill" mean?</div>
+    </div>
+    <div class="scroll">
+      <div style="background:var(--navy);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;" onclick="showToast('Your agent can explain any EOB — call (636) 244-4415')">
+        <div style="width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,0.2);border:2px dashed var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;">📷</div>
+        <div style="color:#fff;font-size:16px;font-weight:600;">Scan or photo an EOB</div>
+        <div style="color:#8aaad4;font-size:13px;text-align:center;">Take a picture of your Explanation of Benefits and we'll explain it in plain English</div>
+      </div>
+      <div class="card" style="background:#fef6e4;border-color:#f0d080;">
+        <div style="font-size:14px;color:#7a5000;line-height:1.6;margin-bottom:12px;">Got a confusing letter from Medicare or your insurance company? Your agent can walk you through it in plain English.</div>
+        <a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Jane Smith</a>
+      </div>
+      <div class="card">
+        <div class="card-title">What is an EOB?</div>
+        <div style="font-size:14px;color:var(--text);line-height:1.7;">An Explanation of Benefits (EOB) is NOT a bill. It's a summary showing what your doctor charged, what your insurance paid, and what — if anything — you might owe. You do not need to pay anything when you receive an EOB.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-profile">
+    <div class="header">
+      <div class="header-brand">Senior Health Solutions</div>
+      <div class="header-title">My Profile</div>
+      <div class="header-sub">Your personal information</div>
+    </div>
+    <div class="scroll">
+      <div class="card">
+        <div style="text-align:center;padding:10px 0 4px;">
+          <div class="profile-avatar-lg" id="profile-initials">—</div>
+          <div style="font-size:20px;font-weight:600;" id="profile-name">—</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:3px;" id="profile-plan">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Contact Information</div>
+        <div class="setting-row"><span style="font-size:15px;">Phone</span><span style="font-size:14px;color:var(--text-muted);" id="profile-phone">—</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Email</span><span style="font-size:14px;color:var(--text-muted);" id="profile-email">—</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Location</span><span style="font-size:14px;color:var(--text-muted);" id="profile-address">—</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">My Agent</div>
+        <div class="setting-row"><span style="font-size:15px;">Agent</span><span style="font-size:14px;color:var(--text-muted);" id="profile-agent">—</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Agency</span><span style="font-size:14px;color:var(--text-muted);">Senior Health Solutions</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Office</span><span style="font-size:14px;color:var(--text-muted);">(636) 244-4415</span></div>
+      </div>
+      <div style="text-align:center;padding:8px 0 4px;">
+        <div style="font-size:12px;color:var(--text-muted);">Senior Health Solutions, LLC</div>
+        <div style="font-size:12px;color:var(--text-muted);">3779 New Town Blvd, Saint Charles, MO 63301</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">App version 2.0</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-item" onclick="goTo('policies')" id="nav-policies"><span class="nav-icon">📋</span><span class="nav-label">Policies</span></button>
+    <button class="nav-item" onclick="goTo('eob')" id="nav-eob"><span class="nav-icon">📄</span><span class="nav-label">My Bills</span></button>
+    <button class="nav-item" onclick="goTo('profile')" id="nav-profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const CONTACT_ID = '__CONTACT_ID__';
+const POLICY_COLORS = [
+  { bg: '#1a2a4a', accent: '#d4a017', label: '#8aaad4' },
+  { bg: '#1a4a6e', accent: '#90d0f0', label: '#90d0f0' },
+  { bg: '#6e1a1a', accent: '#f0a0a0', label: '#f0a0a0' },
+  { bg: '#3a2a6e', accent: '#c0b0f0', label: '#c0b0f0' },
+  { bg: '#1a4a2a', accent: '#90dfa0', label: '#90dfa0' },
+  { bg: '#4a3a1a', accent: '#f0d090', label: '#f0d090' },
+];
+
+let clientData = null;
+let primaryPolicyNumber = '';
+
+async function loadClient() {
+  try {
+    const res = await fetch('/api/client/' + CONTACT_ID);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not load your data');
+    clientData = data;
+    renderApp(data);
+  } catch(e) {
+    document.getElementById('greeting').textContent = 'Could not load coverage';
+    document.getElementById('header-sub').textContent = 'Please call (636) 244-4415';
+    document.getElementById('home-loading').innerHTML = '<div style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:16px;">📞</div><div style="font-size:16px;color:#6b7fa0;margin-bottom:16px;">Having trouble loading your coverage.</div><a href="tel:6362444415" style="background:#1a2a4a;color:#fff;border-radius:12px;padding:14px 28px;text-decoration:none;font-size:16px;font-weight:500;">Call SHS Office</a></div>';
+  }
+}
+
+function renderApp(data) {
+  const firstName = data.firstName || data.name.split(' ')[0];
+  document.getElementById('greeting').textContent = 'Hello, ' + firstName + ' 👋';
+  document.getElementById('header-sub').textContent = 'Your Medicare coverage at a glance';
+
+  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage')) || data.policies[0];
+  if (maPolicy) {
+    document.getElementById('primary-plan-name').textContent = maPolicy.name || maPolicy.carrier;
+    document.getElementById('primary-policy-number').textContent = maPolicy.policyNumber || '—';
+    document.getElementById('primary-carrier').textContent = maPolicy.carrier || '—';
+    document.getElementById('primary-effective').textContent = formatDate(maPolicy.effectiveDate);
+    document.getElementById('primary-status').textContent = maPolicy.status || 'Active';
+    primaryPolicyNumber = maPolicy.policyNumber || '';
+  }
+
+  const agentName = data.agent || 'Your Agent';
+  const initials = agentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('agent-initials').textContent = initials;
+  document.getElementById('agent-name').textContent = agentName;
+
+  document.getElementById('home-loading').style.display = 'none';
+  document.getElementById('home-content').style.display = 'flex';
+  document.getElementById('home-content').style.flexDirection = 'column';
+
+  renderPolicies(data);
+  renderProfile(data);
+}
+
+function renderPolicies(data) {
+  const container = document.getElementById('policies-content');
+  if (!data.policies.length) {
+    container.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">📋</div><div style="font-size:16px;color:#6b7fa0;">No policies found.<br>Call your agent for help.</div></div>';
+    return;
+  }
+  const total = data.policies.reduce((sum, p) => sum + (parseFloat(p.premium) || 0), 0);
+  let html = '';
+  if (total > 0) {
+    html += `<div class="total-card"><div class="total-label">Total monthly premiums</div><div class="total-amount">$${total.toFixed(2)}</div><div class="total-sub">across all your SHS policies</div></div>`;
+  }
+  data.policies.forEach((p, i) => {
+    const color = POLICY_COLORS[i % POLICY_COLORS.length];
+    const carrierPhone = p.carrierPhone || '';
+    html += `<div class="policy-card">
+      <div class="policy-header" style="background:${color.bg};">
+        <div class="policy-header-left">
+          <div class="policy-type" style="color:${color.accent};">${p.type || 'Insurance Policy'}</div>
+          <div class="policy-name" style="color:#fff;">${p.name || p.carrier}</div>
+        </div>
+        <div class="policy-header-right">
+          ${p.premium ? `<div class="policy-premium-label" style="color:${color.label};">Monthly</div><div class="policy-premium" style="color:#fff;">$${parseFloat(p.premium).toFixed(2)}</div>` : ''}
+        </div>
+      </div>
+      <div class="policy-body">
+        ${p.carrier ? `<div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">${p.carrier}</span></div>` : ''}
+        ${p.policyNumber ? `<div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">${p.policyNumber}</span></div>` : ''}
+        ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
+        ${p.renewalDate ? `<div class="policy-row"><span class="policy-label">Renewal date</span><span class="policy-val">${formatDate(p.renewalDate)}</span></div>` : ''}
+        <div class="policy-row"><span class="policy-label">Status</span><span class="badge badge-green">${p.status || 'Active'}</span></div>
+        ${p.carrierPhone ? `<div class="policy-row"><span class="policy-label">Carrier phone</span><a href="tel:${p.carrierPhone}" style="font-size:13px;font-weight:500;color:var(--navy);text-decoration:none;">${p.carrierPhone}</a></div>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:6362444415" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
+  container.innerHTML = html;
+}
+
+function renderProfile(data) {
+  const initials = data.name.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('profile-initials').textContent = initials;
+  document.getElementById('profile-name').textContent = data.name;
+  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare')) || data.policies[0];
+  document.getElementById('profile-plan').textContent = maPolicy ? (maPolicy.name || maPolicy.carrier) : 'SHS Client';
+  document.getElementById('profile-phone').textContent = data.phone || '—';
+  document.getElementById('profile-email').textContent = data.email || '—';
+  document.getElementById('profile-address').textContent = data.address || '—';
+  document.getElementById('profile-agent').textContent = data.agent || 'Your Agent';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  catch(e) { return d; }
+}
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.getElementById('nav-' + screen).classList.add('active');
+}
+
+function copyId() {
+  navigator.clipboard.writeText(primaryPolicyNumber).catch(() => {});
+  showToast('Policy number copied!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+loadClient();
+</script>
+</body>
+</html>

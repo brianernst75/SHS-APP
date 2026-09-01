@@ -101,7 +101,8 @@ async function getClientData(contactId) {
   };
 }
 
-function serveAdmin(res) {
+function serveAdmin(res, pw) {
+  const safePw = (pw || '').replace(/'/g, "\\\\'" );
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -189,6 +190,7 @@ function serveAdmin(res) {
 let generatedLink = '';
 let clientPhone = '';
 
+const PW = '${safePw}';
 async function generateLink() {
   const id = document.getElementById('contact-id').value.trim();
   if (!id) { showError('Please enter a Zoho Contact ID'); return; }
@@ -196,9 +198,7 @@ async function generateLink() {
   document.getElementById('result').style.display = 'none';
   document.getElementById('error').style.display = 'none';
   try {
-    const res = await fetch('/api/client/' + id + '/preview', {
-      headers: { 'x-admin-password': document.getElementById('admin-pass') ? document.getElementById('admin-pass').value : '${ADMIN_PASSWORD}' }
-    });
+    const res = await fetch('/api/client/' + id + '/preview?pw=' + encodeURIComponent(PW));
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error looking up client');
     const baseUrl = window.location.origin;
@@ -248,9 +248,11 @@ function parseBody(req) {
   });
 }
 
-function checkAdmin(req) {
-  const pw = req.headers['x-admin-password'];
-  return pw === (process.env.ADMIN_PASSWORD || 'shs2026');
+function checkAdmin(req, url) {
+  const adminPw = process.env.ADMIN_PASSWORD || 'shs2026';
+  const headerPw = req.headers['x-admin-password'] || '';
+  const urlPw = url && url.includes('?') ? new URLSearchParams(url.split('?')[1]).get('pw') || '' : '';
+  return headerPw === adminPw || urlPw === adminPw;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -258,28 +260,35 @@ const server = http.createServer(async (req, res) => {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  if (url === '/admin') {
-    if (!checkAdmin(req)) {
-      res.writeHead(401, { 'Content-Type': 'text/html' });
-      return res.end(`<!DOCTYPE html><html><body style="font-family:sans-serif;padding:40px;max-width:400px;margin:0 auto;">
-        <h2 style="color:#1a2a4a;">SHS Admin Login</h2>
-        <input type="password" id="pw" placeholder="Enter admin password" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px;margin:16px 0;">
-        <button onclick="login()" style="background:#1a2a4a;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:16px;cursor:pointer;width:100%;">Login</button>
+  if (url === '/admin' || url.startsWith('/admin?')) {
+    const urlParams = new URLSearchParams(url.includes('?') ? url.split('?')[1] : '');
+    const pw = urlParams.get('pw') || req.headers['x-admin-password'] || '';
+    const adminPw = process.env.ADMIN_PASSWORD || 'shs2026';
+    if (pw !== adminPw) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      return res.end(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="apple-mobile-web-app-capable" content="yes"><title>SHS Admin</title></head><body style="font-family:-apple-system,sans-serif;padding:40px 20px;max-width:400px;margin:0 auto;background:#f0f3f8;min-height:100vh;">
+        <div style="background:#1a2a4a;border-radius:16px;padding:24px;margin-bottom:24px;"><div style="color:#d4a017;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Senior Health Solutions</div><div style="color:#fff;font-size:20px;font-weight:600;">Admin Login</div></div>
+        <div style="background:#fff;border-radius:16px;border:1px solid #e0e6f0;padding:24px;">
+          <label style="font-size:13px;color:#6b7fa0;display:block;margin-bottom:6px;">Password</label>
+          <input type="password" id="pw" placeholder="Enter admin password" style="width:100%;padding:12px 14px;border:1px solid #e0e6f0;border-radius:10px;font-size:16px;margin-bottom:16px;outline:none;" />
+          <button onclick="login()" style="background:#1a2a4a;color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:16px;font-weight:500;cursor:pointer;width:100%;">Log in</button>
+          ${urlParams.get('err') ? '<div style="color:#a03030;font-size:13px;margin-top:12px;text-align:center;">Wrong password — try again</div>' : ''}
+        </div>
         <script>
           function login() {
-            fetch('/admin', { headers: { 'x-admin-password': document.getElementById('pw').value }})
-              .then(r => r.text()).then(html => document.open() || document.write(html) || document.close())
-              .catch(() => alert('Wrong password'));
+            const pw = document.getElementById('pw').value;
+            window.location.href = '/admin?pw=' + encodeURIComponent(pw);
           }
-          document.getElementById('pw').addEventListener('keypress', e => e.key === 'Enter' && login());
+          document.getElementById('pw').addEventListener('keypress', e => { if(e.key === 'Enter') login(); });
+          document.getElementById('pw').focus();
         <\/script>
       </body></html>`);
     }
-    return serveAdmin(res);
+    return serveAdmin(res, pw);
   }
 
-  if (url.startsWith('/api/client/') && url.endsWith('/preview')) {
-    if (!checkAdmin(req)) {
+  if (url.startsWith('/api/client/') && url.includes('/preview')) {
+    if (!checkAdmin(req, url)) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ error: 'Unauthorized' }));
     }

@@ -31,11 +31,13 @@ function getAccessToken() {
         try {
           const json = JSON.parse(data);
           if (json.access_token) {
+            console.log('Zoho access token obtained successfully');
             cachedToken = json.access_token;
             tokenExpiry = Date.now() + (json.expires_in - 60) * 1000;
             resolve(cachedToken);
           } else {
-            reject(new Error('No access token: ' + data));
+            console.log('Zoho token error:', data);
+            reject(new Error('Zoho auth failed: ' + data));
           }
         } catch(e) { reject(e); }
       });
@@ -57,8 +59,13 @@ function zohoGet(path, token) {
       let data = '';
       res.on('data', d => data += d);
       res.on('end', () => {
+        console.log('Zoho response status:', res.statusCode);
+        console.log('Zoho response body:', data.substring(0, 300));
+        if (!data || data.trim() === '') {
+          return reject(new Error('Zoho returned empty response (status ' + res.statusCode + ')'));
+        }
         try { resolve(JSON.parse(data)); }
-        catch(e) { reject(e); }
+        catch(e) { reject(new Error('Zoho parse error: ' + data.substring(0, 200))); }
       });
     });
     req.on('error', reject);

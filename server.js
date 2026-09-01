@@ -62,7 +62,7 @@ function zohoGet(path, token) {
         console.log('Zoho response status:', res.statusCode);
         console.log('Zoho response body:', data.substring(0, 300));
         if (!data || data.trim() === '') {
-          return reject(new Error('Zoho returned empty response (status ' + res.statusCode + ')'));
+          return resolve({ data: null, empty: true, status: res.statusCode });
         }
         try { resolve(JSON.parse(data)); }
         catch(e) { reject(new Error('Zoho parse error: ' + data.substring(0, 200))); }

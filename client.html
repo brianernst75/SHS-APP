@@ -85,10 +85,10 @@
   .badge-green { background: var(--green-bg); color: var(--green); }
 
   /* Nav */
-  .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 6px 0 env(safe-area-inset-bottom, 16px); flex-shrink: 0; }
+  .nav { background: var(--white); border-top: 1px solid var(--border); display: flex; padding: 10px 0 env(safe-area-inset-bottom, 20px); flex-shrink: 0; }
   .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; border: none; background: none; }
-  .nav-icon { font-size: 22px; color: #b0bcd4; }
-  .nav-label { font-size: 9px; color: #b0bcd4; font-weight: 500; }
+  .nav-icon { font-size: 30px; color: #b0bcd4; }
+  .nav-label { font-size: 12px; color: #b0bcd4; font-weight: 500; }
   .nav-item.active .nav-icon { color: var(--navy); }
   .nav-item.active .nav-label { color: var(--navy); }
 
@@ -165,22 +165,22 @@
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('policies')">
-          <div style="width:36px;height:36px;border-radius:10px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
-          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Policies</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('policies')">
+          <div style="width:48px;height:48px;border-radius:14px;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-size:26px;">📋</div>
+          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Policies</div>
         </button>
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('benefits')">
-          <div style="width:36px;height:36px;border-radius:10px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:18px;">💊</div>
-          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Benefits</div>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('benefits')">
+          <div style="width:48px;height:48px;border-radius:14px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:26px;">💊</div>
+          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Benefits</div>
         </button>
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('cards')">
-          <div style="width:36px;height:36px;border-radius:10px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:18px;">💳</div>
-          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Cards</div>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('cards')">
+          <div style="width:48px;height:48px;border-radius:14px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:26px;">💳</div>
+          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Cards</div>
         </button>
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('profile')">
-          <div style="width:36px;height:36px;border-radius:10px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>
-          <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Profile</div>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('eob')">
+          <div style="width:48px;height:48px;border-radius:14px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:26px;">📄</div>
+          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Bills</div>
         </button>
       </div>
 
@@ -347,10 +347,6 @@
   <!-- NAV -->
   <nav class="nav">
     <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
-    <button class="nav-item" onclick="goTo('policies')" id="nav-policies"><span class="nav-icon">📋</span><span class="nav-label">Policies</span></button>
-    <button class="nav-item" onclick="goTo('benefits')" id="nav-benefits"><span class="nav-icon">💊</span><span class="nav-label">Benefits</span></button>
-    <button class="nav-item" onclick="goTo('cards')" id="nav-cards"><span class="nav-icon">💳</span><span class="nav-label">My Cards</span></button>
-    <button class="nav-item" onclick="goTo('eob')" id="nav-eob"><span class="nav-icon">📄</span><span class="nav-label">My Bills</span></button>
     <button class="nav-item" onclick="goTo('profile')" id="nav-profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
   </nav>
 

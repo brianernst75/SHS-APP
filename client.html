@@ -550,12 +550,36 @@ function renderPolicies(data) {
         <div class="policy-row"><span class="policy-label">Status</span>${statusBadge}</div>
         ${p.agentName ? `<div class="policy-row"><span class="policy-label">Your agent</span><span class="policy-val">${p.agentName}</span></div>` : ''}
         ${p.premium && parseFloat(p.premium) > 0 && !(isMA && Math.round(parseFloat(p.premium)) === 25) ? `<div class="policy-row"><span class="policy-label">Monthly premium</span><span class="policy-val">$${displayPremium(p.premium, p.type)}</span></div>` : ''}
-        ${glanceRows.length ? `
+        ${isMA && b ? `
           <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Benefits at a glance</div>
-            ${glanceRows.map(r => `<div class="policy-row"><span class="policy-label">${r[0]}</span><span class="policy-val" style="font-weight:600;">${r[1]}</span></div>`).join('')}
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Medical Copays</div>
+            ${b.primaryCare && b.primaryCare.copay ? `<div class="policy-row"><span class="policy-label">Primary care visit</span><span class="policy-val" style="font-weight:600;">${b.primaryCare.copay}</span></div>` : ''}
+            ${b.specialist && b.specialist.copay ? `<div class="policy-row"><span class="policy-label">Specialist visit</span><span class="policy-val" style="font-weight:600;">${b.specialist.copay}</span></div>` : ''}
+            ${b.urgentCare && b.urgentCare.copay ? `<div class="policy-row"><span class="policy-label">Urgent care</span><span class="policy-val" style="font-weight:600;">${b.urgentCare.copay}</span></div>` : ''}
+            ${b.emergencyRoom && b.emergencyRoom.copay ? `<div class="policy-row"><span class="policy-label">Emergency room</span><span class="policy-val" style="font-weight:600;">${b.emergencyRoom.copay}</span></div>` : ''}
+            ${b.preventive && b.preventive.copay ? `<div class="policy-row"><span class="policy-label">Preventive care</span><span class="policy-val" style="font-weight:600;">${b.preventive.copay}</span></div>` : ''}
+            ${b.labServices && b.labServices.copay ? `<div class="policy-row"><span class="policy-label">Lab services</span><span class="policy-val" style="font-weight:600;">${b.labServices.copay}</span></div>` : ''}
+            ${b.ambulance && b.ambulance.copay ? `<div class="policy-row"><span class="policy-label">Ambulance</span><span class="policy-val" style="font-weight:600;">${b.ambulance.copay}</span></div>` : ''}
+            ${b.mentalHealth && b.mentalHealth.copay ? `<div class="policy-row"><span class="policy-label">Mental health</span><span class="policy-val" style="font-weight:600;">${b.mentalHealth.copay}</span></div>` : ''}
+            ${b.telehealth && b.telehealth.copay ? `<div class="policy-row"><span class="policy-label">Telehealth</span><span class="policy-val" style="font-weight:600;">${b.telehealth.copay}</span></div>` : ''}
+            ${b.chiropractic && b.chiropractic.copay ? `<div class="policy-row"><span class="policy-label">Chiropractic</span><span class="policy-val" style="font-weight:600;">${b.chiropractic.copay}${b.chiropractic.visits ? ' · ' + b.chiropractic.visits : ''}</span></div>` : ''}
+            ${b.physicalTherapy && b.physicalTherapy.copay ? `<div class="policy-row"><span class="policy-label">Physical therapy</span><span class="policy-val" style="font-weight:600;">${b.physicalTherapy.copay}${b.physicalTherapy.visits ? ' · ' + b.physicalTherapy.visits : ''}</span></div>` : ''}
+            ${b.moop ? `<div class="policy-row"><span class="policy-label" style="font-weight:600;color:var(--navy);">Max out-of-pocket</span><span class="policy-val" style="font-weight:700;color:var(--navy);">${b.moop}</span></div>` : ''}
           </div>
-          <button onclick="event.stopPropagation();goTo('benefits')" style="margin-top:10px;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px;font-size:13px;font-weight:500;color:var(--navy);cursor:pointer;">See all benefits →</button>
+          ${b.drugTiers && b.drugTiers.length ? `
+          <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Drug Copays (Part D)</div>
+            <div style="display:grid;grid-template-columns:1fr auto auto;margin-bottom:4px;">
+              <div style="font-size:10px;font-weight:600;color:var(--text-muted);">Tier</div>
+              <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:0 8px;text-align:right;">Retail 30</div>
+              <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-align:right;">Mail 90</div>
+            </div>
+            ${b.drugTiers.map(t => `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-top:1px solid var(--border);">
+              <div style="font-size:12px;color:var(--navy);">${t.label}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--navy);padding:0 8px;text-align:right;">${t.retail30 || '—'}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--navy);text-align:right;">${t.mail90 || '—'}</div>
+            </div>`).join('')}
+          </div>` : ''}
         ` : ''}
       </div>
     </div>`;
@@ -637,18 +661,6 @@ function renderBenefits(data) {
 
   if (medRows.length) {
     html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
-  }
-
-  // Supplemental benefits
-  const suppRows = [
-    ['Dental', b.dental],
-    ['Vision', b.vision],
-    ['Hearing aids', b.hearing],
-    ['OTC / Grocery benefit', b.otc],
-  ].filter(r => r[1]);
-
-  if (suppRows.length) {
-    html += `<div class="card"><div class="card-title">Supplemental Benefits</div>${suppRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
   }
 
   // Drug tiers

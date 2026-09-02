@@ -363,11 +363,13 @@ function copyLink() {
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', d => body += d);
+    const chunks = [];
+    req.on('data', d => chunks.push(d));
     req.on('end', () => {
-      try { resolve(JSON.parse(body)); }
-      catch(e) { resolve({}); }
+      try {
+        const body = Buffer.concat(chunks).toString('utf8');
+        resolve(JSON.parse(body));
+      } catch(e) { resolve({}); }
     });
     req.on('error', reject);
   });
@@ -497,11 +499,19 @@ const server = http.createServer(async (req, res) => {
         apiRes.on('data', d => data += d);
         apiRes.on('end', () => {
           try {
+            console.log('Anthropic response status:', apiRes.statusCode);
+            console.log('Anthropic response body:', data.substring(0, 200));
             const json = JSON.parse(data);
+            if (json.error) {
+              console.log('Anthropic error:', json.error);
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ error: json.error.message || 'API error' }));
+            }
             const explanation = json.content && json.content[0] && json.content[0].text;
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ explanation: explanation || 'Could not read this document. Please call your agent for help.' }));
           } catch(e) {
+            console.log('EOB parse error:', e.message, data.substring(0, 100));
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Could not analyze EOB' }));
           }

@@ -722,7 +722,6 @@ function renderBenefits(data) {
     ['Specialist visit', b.specialist],
     ['Urgent care', b.urgentCare],
     ['Emergency room', b.emergencyRoom],
-    ['Preventive care', b.preventive],
     ['Lab services', b.labServices],
     ['Ambulance', b.ambulance],
     ['Mental health', b.mentalHealth],
@@ -732,7 +731,27 @@ function renderBenefits(data) {
   ].filter(r => r[1] && (r[1].copay || r[1].maxBenefit || r[1].visits));
 
   if (medRows.length) {
-    html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
+    html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}
+    <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:14px;color:var(--text-muted);">Preventive care services</span>
+        <span style="font-size:15px;font-weight:600;color:var(--navy);">$0</span>
+      </div>
+      <div style="background:var(--green-bg);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Covered at $0 — federally required</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+          <div style="font-size:13px;color:var(--text);">• Annual wellness visit</div>
+          <div style="font-size:13px;color:var(--text);">• Flu shot</div>
+          <div style="font-size:13px;color:var(--text);">• Mammogram</div>
+          <div style="font-size:13px;color:var(--text);">• Colorectal screening</div>
+          <div style="font-size:13px;color:var(--text);">• Bone density scan</div>
+          <div style="font-size:13px;color:var(--text);">• Diabetes screening</div>
+          <div style="font-size:13px;color:var(--text);">• Blood pressure check</div>
+          <div style="font-size:13px;color:var(--text);">• Cholesterol screening</div>
+        </div>
+      </div>
+    </div>
+    </div>`;
   }
 
   // Drug tiers

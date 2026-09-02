@@ -486,6 +486,14 @@ function renderApp(data) {
   renderProfile(data);
 }
 
+function benefitPolicyRow(label, benefit) {
+  if (!benefit) return '';
+  const val = benefit.copay || benefit.maxBenefit || benefit.visits;
+  if (!val) return '';
+  const extra = benefit.visits && benefit.copay ? ' · ' + benefit.visits : '';
+  return `<div class="policy-row"><span class="policy-label">${label}</span><span class="policy-val" style="font-weight:600;">${val}${extra}</span></div>`;
+}
+
 function renderPolicies(data) {
   const container = document.getElementById('policies-content');
   if (!data.policies.length) {
@@ -553,17 +561,17 @@ function renderPolicies(data) {
         ${isMA && b ? `
           <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Medical Copays</div>
-            ${b.primaryCare && b.primaryCare.copay ? `<div class="policy-row"><span class="policy-label">Primary care visit</span><span class="policy-val" style="font-weight:600;">${b.primaryCare.copay}</span></div>` : ''}
-            ${b.specialist && b.specialist.copay ? `<div class="policy-row"><span class="policy-label">Specialist visit</span><span class="policy-val" style="font-weight:600;">${b.specialist.copay}</span></div>` : ''}
-            ${b.urgentCare && b.urgentCare.copay ? `<div class="policy-row"><span class="policy-label">Urgent care</span><span class="policy-val" style="font-weight:600;">${b.urgentCare.copay}</span></div>` : ''}
-            ${b.emergencyRoom && b.emergencyRoom.copay ? `<div class="policy-row"><span class="policy-label">Emergency room</span><span class="policy-val" style="font-weight:600;">${b.emergencyRoom.copay}</span></div>` : ''}
-            ${b.preventive && b.preventive.copay ? `<div class="policy-row"><span class="policy-label">Preventive care</span><span class="policy-val" style="font-weight:600;">${b.preventive.copay}</span></div>` : ''}
-            ${b.labServices && b.labServices.copay ? `<div class="policy-row"><span class="policy-label">Lab services</span><span class="policy-val" style="font-weight:600;">${b.labServices.copay}</span></div>` : ''}
-            ${b.ambulance && b.ambulance.copay ? `<div class="policy-row"><span class="policy-label">Ambulance</span><span class="policy-val" style="font-weight:600;">${b.ambulance.copay}</span></div>` : ''}
-            ${b.mentalHealth && b.mentalHealth.copay ? `<div class="policy-row"><span class="policy-label">Mental health</span><span class="policy-val" style="font-weight:600;">${b.mentalHealth.copay}</span></div>` : ''}
-            ${b.telehealth && b.telehealth.copay ? `<div class="policy-row"><span class="policy-label">Telehealth</span><span class="policy-val" style="font-weight:600;">${b.telehealth.copay}</span></div>` : ''}
-            ${b.chiropractic && b.chiropractic.copay ? `<div class="policy-row"><span class="policy-label">Chiropractic</span><span class="policy-val" style="font-weight:600;">${b.chiropractic.copay}${b.chiropractic.visits ? ' · ' + b.chiropractic.visits : ''}</span></div>` : ''}
-            ${b.physicalTherapy && b.physicalTherapy.copay ? `<div class="policy-row"><span class="policy-label">Physical therapy</span><span class="policy-val" style="font-weight:600;">${b.physicalTherapy.copay}${b.physicalTherapy.visits ? ' · ' + b.physicalTherapy.visits : ''}</span></div>` : ''}
+            ${benefitPolicyRow('Primary care visit', b.primaryCare)}
+            ${benefitPolicyRow('Specialist visit', b.specialist)}
+            ${benefitPolicyRow('Urgent care', b.urgentCare)}
+            ${benefitPolicyRow('Emergency room', b.emergencyRoom)}
+            ${benefitPolicyRow('Preventive care', b.preventive)}
+            ${benefitPolicyRow('Lab services', b.labServices)}
+            ${benefitPolicyRow('Ambulance', b.ambulance)}
+            ${benefitPolicyRow('Mental health', b.mentalHealth)}
+            ${benefitPolicyRow('Telehealth', b.telehealth)}
+            ${benefitPolicyRow('Chiropractic', b.chiropractic)}
+            ${benefitPolicyRow('Physical therapy', b.physicalTherapy)}
             ${b.moop ? `<div class="policy-row"><span class="policy-label" style="font-weight:600;color:var(--navy);">Max out-of-pocket</span><span class="policy-val" style="font-weight:700;color:var(--navy);">${b.moop}</span></div>` : ''}
           </div>
           ${b.drugTiers && b.drugTiers.length ? `
@@ -657,7 +665,7 @@ function renderBenefits(data) {
     ['Telehealth', b.telehealth],
     ['Chiropractic', b.chiropractic],
     ['Physical therapy', b.physicalTherapy],
-  ].filter(r => r[1]);
+  ].filter(r => r[1] && (r[1].copay || r[1].maxBenefit || r[1].visits));
 
   if (medRows.length) {
     html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;

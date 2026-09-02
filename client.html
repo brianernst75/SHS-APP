@@ -302,7 +302,8 @@
         </div>
         <div class="card">
           <div style="font-size:15px;color:var(--text);line-height:1.6;margin-bottom:14px;">Search for any medication to see if it is covered by your plan, what tier it is, and what you will pay.</div>
-          <button id="drug-search-btn" onclick="openDrugSearch()" style="background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;">💊 Search My Drug Formulary</button>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Tapping the button below will open your plan's drug list in your browser. When done, come back to this app.</div>
+          <button id="drug-search-btn" onclick="openDrugSearch()" style="background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;">💊 Open Drug Formulary</button>
         </div>
         <div class="card" style="background:#fef6e4;border-color:#f0d080;">
           <div style="font-size:13px;color:#7a5000;line-height:1.6;">
@@ -319,7 +320,7 @@
           <a href="tel:8882155740" class="btn-primary" id="drug-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
         </div>
       </div>
-      <iframe id="drug-iframe" style="display:none;flex:1;border:none;width:100%;" title="Drug Formulary Search"></iframe>
+
     </div>
   </div>
 
@@ -564,13 +565,8 @@ function openDrugSearch() {
   const parts = maPolicy.mapdPlanNumber.split('-');
   const contractId = parts[0];
   const planId = parts[1];
-  const url = `https://q1medicare.com/PartD-BrowseMedicare-2026PlanFormulary.php?contractId=${contractId}&planId=${planId}`;
-
-  const iframe = document.getElementById('drug-iframe');
-  const intro = document.getElementById('drug-lookup-intro');
-  iframe.src = url;
-  iframe.style.display = 'block';
-  intro.style.display = 'none';
+  const url = 'https://q1medicare.com/PartD-BrowseMedicare-2026PlanFormulary.php?contractId=' + contractId + '&planId=' + planId;
+  window.open(url, '_blank');
 }
 
 function showCoverageInfo(idx, phone, agentName) {

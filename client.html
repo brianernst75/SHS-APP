@@ -73,8 +73,8 @@
   .policy-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .policy-premium { font-size: 20px; font-weight: 700; white-space: nowrap; }
   .policy-premium-label { font-size: 10px; opacity: 0.7; }
-  .policy-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
-  .policy-body.open { max-height: 500px; padding: 0 16px 14px; }
+  .policy-body { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height 0.6s ease, padding 0.3s ease; }
+  .policy-body.open { max-height: 2000px; padding: 0 16px 14px; }
   .policy-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .policy-row:last-child { border-bottom: none; }
   .policy-label { font-size: 13px; color: var(--text-muted); }
@@ -654,14 +654,14 @@ function renderPolicies(data) {
     const hasIt = activePolicies.some(p => p.type && ct.match(p.type));
     if (!hasIt) {
       const idx = COVERAGE_TYPES.indexOf(ct);
-      html += `<div class="policy-card" style="opacity:0.6;" onclick="showCoverageInfo(${idx}, '${agentPhone}', '${agentFirstName}')">
-        <div class="policy-header" style="background:${ct.color.bg};filter:grayscale(30%);">
+      html += `<div class="policy-card" style="opacity:0.65;" onclick="showCoverageInfo(${idx}, '${agentPhone}', '${agentFirstName}')">
+        <div class="policy-header" style="background:${ct.color.bg};">
           <div class="policy-header-left">
-            <div class="policy-type" style="color:${ct.color.accent};">Not currently enrolled</div>
-            <div class="policy-name" style="color:#fff;">${ct.icon} ${ct.label}</div>
+            <div class="policy-type" style="color:${ct.color.accent};font-size:10px;">Ask your agent about</div>
+            <div class="policy-name" style="color:#fff;font-size:15px;">${ct.icon} ${ct.label}</div>
           </div>
           <div class="policy-header-right">
-            <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#fff;font-size:12px;font-weight:500;">Learn more</div>
+            <div style="background:rgba(255,255,255,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-weight:500;">Learn more →</div>
           </div>
         </div>
       </div>`;

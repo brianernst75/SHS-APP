@@ -690,14 +690,8 @@ function togglePolicy(i) {
   const body = document.getElementById('policy-body-' + i);
   const chevron = document.getElementById('chevron-' + i);
   if (!body) return;
-  const isOpening = !body.classList.contains('open');
   body.classList.toggle('open');
   chevron.classList.toggle('open');
-  if (isOpening) {
-    setTimeout(() => {
-      body.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  }
 }
 
 function renderBenefits(data) {

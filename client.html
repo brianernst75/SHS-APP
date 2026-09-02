@@ -294,33 +294,69 @@
       </div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-      <div id="drug-lookup-intro" style="padding:14px 12px;display:flex;flex-direction:column;gap:10px;">
-        <div class="card" style="background:var(--navy);border-color:var(--navy);">
-          <div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Your Plan</div>
-          <div style="color:#fff;font-size:16px;font-weight:600;" id="drug-plan-name">Loading...</div>
-          <div style="color:#8aaad4;font-size:13px;margin-top:4px;" id="drug-plan-number"></div>
-        </div>
-        <div class="card">
-          <div style="font-size:15px;color:var(--text);line-height:1.6;margin-bottom:14px;">Search for any medication to see if it is covered by your plan, what tier it is, and what you will pay.</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Tapping the button below will open your plan's drug list in your browser. When done, come back to this app.</div>
-          <button id="drug-search-btn" onclick="openDrugSearch()" style="background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;">💊 Open Drug Formulary</button>
-        </div>
-        <div class="card" style="background:#fef6e4;border-color:#f0d080;">
-          <div style="font-size:13px;color:#7a5000;line-height:1.6;">
-            <strong>Understanding drug tiers:</strong><br>
-            Tier 1 (Preferred Generic) — lowest cost<br>
-            Tier 2 (Generic) — low cost<br>
-            Tier 3 (Preferred Brand) — moderate cost<br>
-            Tier 4 (Non-Preferred) — higher cost<br>
-            Tier 5 (Specialty) — highest cost
-          </div>
-        </div>
-        <div class="card">
-          <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">Have questions about a specific medication or cost? Call your agent.</div>
-          <a href="tel:8882155740" class="btn-primary" id="drug-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
+
+      <!-- Search box -->
+      <div style="padding:12px 12px 0;flex-shrink:0;">
+        <div style="position:relative;">
+          <input
+            id="drug-search-input"
+            type="text"
+            placeholder="Search by drug name..."
+            autocomplete="off" autocorrect="off" autocapitalize="off"
+            style="width:100%;padding:13px 16px 13px 44px;font-size:16px;border:2px solid var(--border);border-radius:12px;box-sizing:border-box;outline:none;-webkit-appearance:none;font-family:inherit;"
+            oninput="drugSearchDebounced()"
+            onfocus="this.style.borderColor='var(--navy)'"
+            onblur="this.style.borderColor='var(--border)'"
+          />
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:20px;">🔍</span>
+          <span id="drug-search-clear" onclick="clearDrugSearch()" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;display:none;color:#999;">✕</span>
         </div>
       </div>
 
+      <!-- Scrollable results area -->
+      <div style="flex:1;overflow-y:auto;padding:10px 12px 80px;" id="drug-scroll-area">
+
+        <!-- Loading -->
+        <div id="drug-loading" style="display:none;text-align:center;padding:32px;color:var(--text-muted);">
+          <div class="loading-spinner" style="margin:0 auto 12px;"></div>
+          Searching formulary...
+        </div>
+
+        <!-- Search results -->
+        <div id="drug-results"></div>
+
+        <!-- Tier education (shown when no search active) -->
+        <div id="drug-tier-education">
+          <div id="drug-plan-card" class="card" style="background:var(--navy);border-color:var(--navy);margin-bottom:8px;">
+            <div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Your Plan</div>
+            <div style="color:#fff;font-size:16px;font-weight:600;" id="drug-plan-name">Loading...</div>
+            <div style="color:#8aaad4;font-size:13px;margin-top:3px;" id="drug-plan-number"></div>
+          </div>
+          <div id="tier-table-container">
+            <div style="text-align:center;padding:20px;color:var(--text-muted);">Loading tier structure...</div>
+          </div>
+          <div class="card" style="margin-top:8px;">
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">Have questions about a specific medication? Call your agent.</div>
+            <a href="tel:8882155740" class="btn-primary" id="drug-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:8px 0 4px;">
+            Pricing sourced from CMS Medicare Plan Finder · Updated monthly
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Drug detail modal -->
+  <div id="drug-detail-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.5);align-items:flex-end;" onclick="if(event.target===this)closeDrugDetail()">
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px;max-height:82vh;overflow-y:auto;width:100%;box-sizing:border-box;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div id="drug-detail-name" style="font-size:19px;font-weight:700;color:#1a1a1a;flex:1;padding-right:12px;line-height:1.3;"></div>
+        <button onclick="closeDrugDetail()" style="background:none;border:none;font-size:24px;color:#999;cursor:pointer;padding:0;flex-shrink:0;">✕</button>
+      </div>
+      <div id="drug-detail-body"></div>
+      <a id="drug-detail-call-btn" href="tel:8882155740" class="btn-primary" style="width:100%;justify-content:center;margin-top:16px;padding:14px;font-size:16px;border-radius:12px;">📞 Call Agent with Questions</a>
     </div>
   </div>
 
@@ -552,21 +588,202 @@ function renderApp(data) {
   renderProfile(data);
 }
 
-function openDrugSearch() {
-  const maPolicy = clientData && clientData.policies &&
-    clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') &&
-    p.status && (p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'enrolled'));
+// ── Drug Search ───────────────────────────────────────────────────────────
+let drugSearchTimer = null;
+let currentDrugPlan = null;
 
-  if (!maPolicy || !maPolicy.mapdPlanNumber || maPolicy.mapdPlanNumber === 'n/a') {
-    showToast('Plan number not found. Call your agent for drug information.');
-    return;
+function initDrugScreen(mapdPlanNumber) {
+  currentDrugPlan = mapdPlanNumber || '';
+  document.getElementById('drug-search-input').value = '';
+  document.getElementById('drug-search-clear').style.display = 'none';
+  document.getElementById('drug-results').innerHTML = '';
+  document.getElementById('drug-loading').style.display = 'none';
+  document.getElementById('drug-tier-education').style.display = 'block';
+
+  // Show plan name/number in card
+  if (clientData) {
+    const maPolicy = clientData.policies && clientData.policies.find(p =>
+      p.type && p.type.toLowerCase().includes('medicare advantage'));
+    if (maPolicy) {
+      document.getElementById('drug-plan-name').textContent =
+        (maPolicy.carrier ? maPolicy.carrier + ' Medicare Advantage' : maPolicy.name) || 'Medicare Advantage';
+      document.getElementById('drug-plan-number').textContent = maPolicy.mapdPlanNumber || '';
+    }
   }
 
-  const parts = maPolicy.mapdPlanNumber.split('-');
-  const contractId = parts[0];
-  const planId = parts[1];
-  const url = 'https://q1medicare.com/PartD-BrowseMedicare-2026PlanFormulary.php?contractId=' + contractId + '&planId=' + planId;
-  window.open(url, '_blank');
+  // Update call button with agent phone
+  const agentPhone = clientData ? getAgentPhone(clientData.agent || '') : '8882155740';
+  const callBtn = document.getElementById('drug-call-btn');
+  if (callBtn) callBtn.href = 'tel:' + agentPhone;
+  const detailCallBtn = document.getElementById('drug-detail-call-btn');
+  if (detailCallBtn) detailCallBtn.href = 'tel:' + agentPhone;
+
+  loadTierTable(mapdPlanNumber);
+}
+
+function drugSearchDebounced() {
+  const input = document.getElementById('drug-search-input');
+  const clear  = document.getElementById('drug-search-clear');
+  clear.style.display = input.value.length > 0 ? 'block' : 'none';
+  clearTimeout(drugSearchTimer);
+  if (input.value.length < 2) {
+    document.getElementById('drug-tier-education').style.display = 'block';
+    document.getElementById('drug-results').innerHTML = '';
+    document.getElementById('drug-loading').style.display = 'none';
+    return;
+  }
+  drugSearchTimer = setTimeout(() => executeDrugSearch(input.value), 350);
+}
+
+function clearDrugSearch() {
+  document.getElementById('drug-search-input').value = '';
+  document.getElementById('drug-search-clear').style.display = 'none';
+  document.getElementById('drug-results').innerHTML = '';
+  document.getElementById('drug-loading').style.display = 'none';
+  document.getElementById('drug-tier-education').style.display = 'block';
+}
+
+async function executeDrugSearch(query) {
+  if (!currentDrugPlan) {
+    document.getElementById('drug-results').innerHTML =
+      '<div style="text-align:center;padding:24px;color:var(--red);">No plan on file. Call your agent.</div>';
+    return;
+  }
+  document.getElementById('drug-tier-education').style.display = 'none';
+  document.getElementById('drug-loading').style.display = 'block';
+  document.getElementById('drug-results').innerHTML = '';
+  try {
+    const res  = await fetch('/api/drugs/search?q=' + encodeURIComponent(query) + '&plan=' + encodeURIComponent(currentDrugPlan));
+    const data = await res.json();
+    document.getElementById('drug-loading').style.display = 'none';
+    renderDrugResults(data.results, query);
+  } catch(err) {
+    document.getElementById('drug-loading').style.display = 'none';
+    document.getElementById('drug-results').innerHTML =
+      '<div style="text-align:center;padding:24px;color:var(--red);">Search failed. Please try again.</div>';
+  }
+}
+
+function renderDrugResults(results, query) {
+  const el = document.getElementById('drug-results');
+  if (!results || results.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:32px 16px;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:12px;">🔍</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:8px;color:var(--text);">Not found on formulary</div>
+      <div style="font-size:14px;line-height:1.6;">"${query}" may not be covered by your plan, or try a different spelling.<br><br>Call your agent for alternatives.</div>
+    </div>`;
+    return;
+  }
+  const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
+  el.innerHTML = results.map(drug => `
+    <div onclick='showDrugDetail(${JSON.stringify(drug)})' style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px;">${drug.drug_name}</div>
+        <div style="font-size:12px;color:var(--text-muted);">${drug.tier_label}</div>
+        <div style="font-size:12px;color:var(--navy);margin-top:2px;">
+          Retail: ${drug.pricing.preferred_retail || '—'}${drug.pricing.mail_order ? ' &nbsp;·&nbsp; Mail: ' + drug.pricing.mail_order : ''}
+        </div>
+        ${drug.requires_pa ? '<span style="font-size:11px;background:#FFF3E0;color:#E65100;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block;">⚠️ Prior Auth</span>' : ''}
+        ${drug.selected_drug ? '<span style="font-size:11px;background:#E8F5E9;color:#2E7D32;padding:2px 6px;border-radius:4px;margin-top:4px;margin-left:4px;display:inline-block;">★ Negotiated Price</span>' : ''}
+      </div>
+      <div style="background:${tierColors[drug.tier]||'#666'};color:#fff;font-size:12px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;margin-left:10px;flex-shrink:0;">T${drug.tier}</div>
+    </div>
+  `).join('');
+}
+
+function showDrugDetail(drug) {
+  document.getElementById('drug-detail-name').textContent = drug.drug_name;
+  const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
+  const tc = tierColors[drug.tier] || '#666';
+  document.getElementById('drug-detail-body').innerHTML = `
+    <div style="background:${tc}18;border:1px solid ${tc}40;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:700;color:${tc};">${drug.tier_label}</div>
+      ${drug.selected_drug ? '<div style="font-size:12px;color:#2E7D32;margin-top:3px;">★ IRA negotiated price — set directly by Medicare</div>' : ''}
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Your Copays</div>
+    <div style="background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);">
+        <span style="font-size:14px;color:var(--text-muted);">Preferred Pharmacy (30-day)</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.preferred_retail || '—'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);">
+        <span style="font-size:14px;color:var(--text-muted);">Standard Pharmacy (30-day)</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.standard_retail || '—'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:11px 14px;">
+        <span style="font-size:14px;color:var(--text-muted);">Mail Order (90-day)</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.mail_order || '—'}</span>
+      </div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Coverage Details</div>
+    <div style="background:var(--bg);border-radius:10px;padding:11px 14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;color:var(--text-muted);">Prior Authorization</span>
+        <span style="font-size:14px;font-weight:600;color:${drug.requires_pa?'#C62828':'#2E7D32'};">${drug.requires_pa?'⚠️ Required':'✓ Not Required'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;color:var(--text-muted);">Step Therapy</span>
+        <span style="font-size:14px;font-weight:600;color:${drug.step_therapy?'#E65100':'#2E7D32'};">${drug.step_therapy?'⚠️ Required':'✓ Not Required'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:14px;color:var(--text-muted);">Quantity Limits</span>
+        <span style="font-size:14px;font-weight:600;color:${drug.quantity_limit?'#E65100':'#2E7D32'};">${drug.quantity_limit?'⚠️ Applies':'✓ No Limits'}</span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;">Pricing from CMS Medicare Plan Finder · ${drug.plan_year} plan year</div>
+  `;
+  document.getElementById('drug-detail-modal').style.display = 'flex';
+}
+
+function closeDrugDetail() {
+  document.getElementById('drug-detail-modal').style.display = 'none';
+}
+
+async function loadTierTable(plan) {
+  if (!plan || plan === 'na' || plan === 'n/a') {
+    document.getElementById('tier-table-container').innerHTML =
+      '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">No plan number on file. Call your agent.</div>';
+    return;
+  }
+  try {
+    const res  = await fetch('/api/drugs/plan-tiers?plan=' + encodeURIComponent(plan));
+    const data = await res.json();
+    renderTierTable(data.tiers || []);
+  } catch(e) {
+    document.getElementById('tier-table-container').innerHTML =
+      '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">Could not load tier data.</div>';
+  }
+}
+
+function renderTierTable(tiers) {
+  if (!tiers.length) {
+    document.getElementById('tier-table-container').innerHTML =
+      '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">Tier data not yet available. Import in progress.</div>';
+    return;
+  }
+  const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
+  document.getElementById('tier-table-container').innerHTML = `
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">Your Plan's Tier Copays</div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px;">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;background:var(--bg);padding:9px 12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Tier</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;text-align:center;">Preferred</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;text-align:center;">Standard</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;text-align:center;">Mail</div>
+      </div>
+      ${tiers.map(t => `
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:10px 12px;border-top:1px solid var(--border);align-items:center;">
+          <div>
+            <span style="background:${tierColors[t.tier]||'#666'};color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-right:5px;">T${t.tier}</span>
+            <span style="font-size:12px;color:var(--text-muted);">${(t.tier_label||'').replace(/Tier \d — /,'')}</span>
+          </div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.preferred_retail||'—'}</div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.standard_retail||'—'}</div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.mail_order||'—'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function showCoverageInfo(idx, phone, agentName) {
@@ -888,14 +1105,8 @@ function goTo(screen) {
   if (screen === 'drugs') {
     const maPolicy = clientData && clientData.policies &&
       clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
-    if (maPolicy) {
-      document.getElementById('drug-plan-name').textContent = maPolicy.carrier + ' Medicare Advantage';
-      document.getElementById('drug-plan-number').textContent = maPolicy.mapdPlanNumber || '';
-    }
-    // Reset iframe when returning to drug screen
-    document.getElementById('drug-iframe').style.display = 'none';
-    document.getElementById('drug-lookup-intro').style.display = 'flex';
-    document.getElementById('drug-lookup-intro').style.flexDirection = 'column';
+    const mapdPlan = maPolicy ? (maPolicy.mapdPlanNumber || '') : '';
+    initDrugScreen(mapdPlan);
   }
 }
 

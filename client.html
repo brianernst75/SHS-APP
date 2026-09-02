@@ -600,7 +600,7 @@ function renderPolicies(data) {
       </div>
       <div class="policy-body" id="policy-body-${i}">
         ${p.carrier ? `<div class="policy-row"><span class="policy-label">Carrier</span><span class="policy-val">${p.carrier}</span></div>` : ''}
-        ${showMapd ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
+        ${showMapd && p.mapdPlanNumber && p.mapdPlanNumber.toLowerCase() !== 'na' && p.mapdPlanNumber.toLowerCase() !== 'n/a' ? `<div class="policy-row"><span class="policy-label">MAPD plan number</span><span class="policy-val">${p.mapdPlanNumber}</span></div>` : ''}
         ${p.policyNumber ? `<div class="policy-row"><span class="policy-label">Policy number</span><span class="policy-val">${p.policyNumber}</span></div>` : ''}
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
         <div class="policy-row"><span class="policy-label">Status</span>${statusBadge}</div>
@@ -655,14 +655,12 @@ function renderPolicies(data) {
     if (!hasIt) {
       const idx = COVERAGE_TYPES.indexOf(ct);
       html += `<div class="policy-card" style="opacity:0.65;" onclick="showCoverageInfo(${idx}, '${agentPhone}', '${agentFirstName}')">
-        <div class="policy-header" style="background:${ct.color.bg};">
-          <div class="policy-header-left">
-            <div class="policy-type" style="color:${ct.color.accent};font-size:10px;">Ask your agent about</div>
-            <div class="policy-name" style="color:#fff;font-size:15px;">${ct.icon} ${ct.label}</div>
+        <div style="background:${ct.color.bg};padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-radius:var(--radius);">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:${ct.color.accent};margin-bottom:4px;">Ask your agent about</div>
+            <div style="font-size:15px;font-weight:600;color:#fff;">${ct.icon} ${ct.label}</div>
           </div>
-          <div class="policy-header-right">
-            <div style="background:rgba(255,255,255,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-weight:500;">Learn more →</div>
-          </div>
+          <div style="flex-shrink:0;background:rgba(255,255,255,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-weight:500;white-space:nowrap;">Learn more →</div>
         </div>
       </div>`;
     }

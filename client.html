@@ -505,6 +505,23 @@ function renderApp(data) {
   renderProfile(data);
 }
 
+function showCoverageInfo(title, desc, phone, agentName) {
+  const modal = document.getElementById('coverage-modal');
+  if (!modal) return;
+  document.getElementById('modal-label').textContent = 'Ask your agent about';
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-desc').textContent = desc;
+  const btn = document.getElementById('modal-call-btn');
+  btn.href = 'tel:' + phone;
+  btn.textContent = '📞 Call ' + agentName + ' to Learn More';
+  modal.style.display = 'flex';
+}
+
+function closeCoverageInfo() {
+  const modal = document.getElementById('coverage-modal');
+  if (modal) modal.style.display = 'none';
+}
+
 function benefitPolicyRow(label, benefit) {
   if (!benefit) return '';
   const val = benefit.copay || benefit.maxBenefit || benefit.visits;
@@ -516,14 +533,19 @@ function benefitPolicyRow(label, benefit) {
   </div>`;
 }
 
+// Coverage opportunity cards — shown greyed if client doesn't have them
+const COVERAGE_TYPES = [
+  { key: 'medicare_advantage', label: 'Medicare Advantage', icon: '🏥', color: { bg: '#1a2a4a', accent: '#d4a017', label: '#8aaad4' }, match: t => t.toLowerCase().includes('medicare advantage') || t.toLowerCase().includes('mapd'), desc: 'Your primary Medicare coverage covering hospital, medical, and often prescription drugs.' },
+  { key: 'hospital_indemnity', label: 'Hospital Indemnity', icon: '🏨', color: { bg: '#1a4a6e', accent: '#90d0f0', label: '#90d0f0' }, match: t => t.toLowerCase().includes('hospital') || t.toLowerCase().includes('indemnity'), desc: 'Pays a daily benefit when you're hospitalized. Helps cover out-of-pocket costs like copays and deductibles.' },
+  { key: 'cancer', label: 'First Occurrence Cancer', icon: '🎗️', color: { bg: '#6e1a1a', accent: '#f0a0a0', label: '#f0a0a0' }, match: t => t.toLowerCase().includes('cancer'), desc: 'Pays a lump sum if you're diagnosed with cancer for the first time. Use it however you need.' },
+  { key: 'life', label: 'Final Expense Life Insurance', icon: '🛡️', color: { bg: '#3a2a6e', accent: '#c0b0f0', label: '#c0b0f0' }, match: t => t.toLowerCase().includes('life') || t.toLowerCase().includes('final expense'), desc: 'Covers funeral and end-of-life expenses so your family isn't left with the burden.' },
+  { key: 'financial', label: 'No-Cost Financial Planning', icon: '📊', color: { bg: '#1a4a2a', accent: '#90dfa0', label: '#90dfa0' }, match: t => t.toLowerCase().includes('financial') || t.toLowerCase().includes('annuity'), desc: 'A complimentary review of your retirement finances with one of our licensed advisors.' },
+];
+
 function renderPolicies(data) {
   const container = document.getElementById('policies-content');
-  if (!data.policies.length) {
-    container.innerHTML = '<div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:40px;margin-bottom:12px;">📋</div><div style="font-size:16px;color:#6b7fa0;">No policies found.<br>Call your agent for help.</div></div>';
-    return;
-  }
 
-  const sorted = [...data.policies].filter(p => {
+  const activePolicies = data.policies.filter(p => {
     const st = (p.status || '').toLowerCase();
     return st !== 'cancelled' && st !== 'canceled';
   }).sort((a, b) => {
@@ -538,6 +560,8 @@ function renderPolicies(data) {
     };
     return rank(a) - rank(b);
   });
+
+  const sorted = activePolicies;
 
   let html = '';
   let colorIndex = 0;
@@ -618,9 +642,47 @@ function renderPolicies(data) {
     </div>`;
   });
 
+  // Add opportunity cards for coverage types they don't have
+  const agentPhone = clientData && clientData.agentPhone ? clientData.agentPhone : '8882155740';
+  const agentFirstName = clientData && clientData.agent ? 
+    (clientData.agent.includes(',') ? clientData.agent.split(',')[1].trim().split(' ')[0] : clientData.agent.split(' ')[0]) 
+    : 'Your Agent';
+
+  COVERAGE_TYPES.forEach(ct => {
+    const hasIt = activePolicies.some(p => p.type && ct.match(p.type));
+    if (!hasIt) {
+      html += `<div class="policy-card" style="opacity:0.6;" onclick="showCoverageInfo('${ct.label}', '${ct.desc}', '${agentPhone}', '${agentFirstName}')">
+        <div class="policy-header" style="background:${ct.color.bg};filter:grayscale(30%);">
+          <div class="policy-header-left">
+            <div class="policy-type" style="color:${ct.color.accent};">Not currently enrolled</div>
+            <div class="policy-name" style="color:#fff;">${ct.icon} ${ct.label}</div>
+          </div>
+          <div class="policy-header-right">
+            <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#fff;font-size:12px;font-weight:500;">Learn more</div>
+          </div>
+        </div>
+      </div>`;
+    }
+  });
+
   html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
 
   container.innerHTML = html;
+
+  // Add coverage info modal
+  if (!document.getElementById('coverage-modal')) {
+    const modal = document.createElement('div');
+    modal.id = 'coverage-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center;';
+    modal.innerHTML = `<div style="background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:430px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;" id="modal-label"></div>
+      <div style="font-size:18px;font-weight:600;color:var(--navy);margin-bottom:12px;" id="modal-title"></div>
+      <div style="font-size:15px;color:var(--text-muted);line-height:1.6;margin-bottom:20px;" id="modal-desc"></div>
+      <a id="modal-call-btn" href="tel:8882155740" class="btn-primary" style="justify-content:center;width:100%;padding:14px;font-size:16px;">📞 Call to Learn More</a>
+      <button onclick="closeCoverageInfo()" style="margin-top:12px;width:100%;background:none;border:none;font-size:15px;color:var(--text-muted);cursor:pointer;padding:8px;">Close</button>
+    </div>`;
+    document.querySelector('.app').appendChild(modal);
+  }
 }
 
 function togglePolicy(i) {

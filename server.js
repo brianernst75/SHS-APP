@@ -519,6 +519,21 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (url.startsWith('/diagnostic/plan/')) {
+    const planKey = url.replace('/diagnostic/plan/', '').split('?')[0];
+    try {
+      const client = await getMongoClient();
+      const col = client.db('shs').collection('ma_plans');
+      const parts = planKey.split('-');
+      const plan = await col.findOne({ contractId: parts[0], planId: parts[1] });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(plan, null, 2));
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: e.message }));
+    }
+  }
+
   if (url === '/diagnostic') {
     try {
       const token = await getAccessToken();

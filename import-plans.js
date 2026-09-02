@@ -27,6 +27,22 @@ function fmtCopay(copay) {
     if (mn === mx) return '$' + mn.toFixed(0);
     return '$' + mn.toFixed(0) + '–$' + mx.toFixed(0);
   }
+  // No value set = not covered or $0 based on context
+  return null;
+}
+
+function fmtCoinsurance(coins) {
+  if (!coins) return null;
+  const v = coins.bdCoinsuranceAmountYesNoMinMax;
+  if (v === '1' && coins.bdCoinsuranceAmount) return coins.bdCoinsuranceAmount + '%';
+  if (v === '2') return '$0';
+  if (v === '3') {
+    const mn = parseFloat(coins.bdCoinsuranceMinAmount || 0);
+    const mx = parseFloat(coins.bdCoinsuranceMaxAmount || 0);
+    if (mn === 0 && mx === 0) return '0%';
+    if (mn === mx) return mn + '%';
+    return mn + '%–' + mx + '%';
+  }
   return null;
 }
 
@@ -92,9 +108,47 @@ function parsePlan(json) {
       const arr = byCode[code];
       if (!arr) continue;
       for (const det of arr) {
-        const copay = fmtCopay(det.CopaymentComponent);
+        // Try standard CopaymentComponent
+        let copay = fmtCopay(det.CopaymentComponent);
+        
+        // Try CopaymentAdmissionWaivedHospitalComponent (used for ER)
+        if (!copay && det.CopaymentAdmissionWaivedHospitalComponent) {
+          const inner = det.CopaymentAdmissionWaivedHospitalComponent.bdCopayComponent;
+          copay = fmtCopay(inner);
+        }
+        
+        // Try TierCopaymentComponent
+        if (!copay && det.TierCopaymentComponent) {
+          const tier = det.TierCopaymentComponent;
+          if (tier.bdCopaymentAmountYesNo === '1' && tier.bdCopaymentTier1Amt) {
+            copay = '$' + parseFloat(tier.bdCopaymentTier1Amt).toFixed(0);
+          } else if (tier.bdCopaymentAmountYesNo === '2') {
+            copay = '$0';
+          }
+          // Day interval (inpatient hospital)
+          if (!copay && tier.bdCopaymentTier1DayIntervalStay) {
+            const di = tier.bdCopaymentTier1DayIntervalStay;
+            if (di.bdDayInterval1CopaymentAmount && parseFloat(di.bdDayInterval1CopaymentAmount) > 0) {
+              copay = '$' + parseFloat(di.bdDayInterval1CopaymentAmount).toFixed(0) + '/day (days 1–' + di.bdDayInterval1EndDay + ')';
+            } else if (di.bdDayInterval1CopaymentAmount === '0.00') {
+              copay = '$0';
+            }
+          }
+        }
+        
+        // Try CoinsuranceComponent if no copay
+        if (!copay) {
+          copay = fmtCoinsurance(det.CoinsuranceComponent);
+        }
+        
+        // Check if CopaymentComponent yesno=2 means $0 explicitly  
+        if (!copay && det.CopaymentComponent && det.CopaymentComponent.bdCopaymentAmountYesNoMinMax === '2') {
+          copay = '$0';
+        }
+
         const max = fmtMax(det.MaximumPlanBenefitCoverageComponent);
         const visits = fmtVisits(det.BenefitUnlimitedComponent);
+        
         if (copay || max || visits) return { copay, maxBenefit: max, visits, code };
       }
     }

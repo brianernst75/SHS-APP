@@ -505,12 +505,14 @@ function renderApp(data) {
   renderProfile(data);
 }
 
-function showCoverageInfo(title, desc, phone, agentName) {
+function showCoverageInfo(idx, phone, agentName) {
+  const ct = COVERAGE_TYPES[idx];
+  if (!ct) return;
   const modal = document.getElementById('coverage-modal');
   if (!modal) return;
   document.getElementById('modal-label').textContent = 'Ask your agent about';
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-desc').textContent = desc;
+  document.getElementById('modal-title').textContent = ct.icon + ' ' + ct.label;
+  document.getElementById('modal-desc').textContent = ct.desc;
   const btn = document.getElementById('modal-call-btn');
   btn.href = 'tel:' + phone;
   btn.textContent = '📞 Call ' + agentName + ' to Learn More';
@@ -535,11 +537,11 @@ function benefitPolicyRow(label, benefit) {
 
 // Coverage opportunity cards — shown greyed if client doesn't have them
 const COVERAGE_TYPES = [
-  { key: 'medicare_advantage', label: 'Medicare Advantage', icon: '🏥', color: { bg: '#1a2a4a', accent: '#d4a017', label: '#8aaad4' }, match: t => t.toLowerCase().includes('medicare advantage') || t.toLowerCase().includes('mapd'), desc: 'Your primary Medicare coverage covering hospital, medical, and often prescription drugs.' },
-  { key: 'hospital_indemnity', label: 'Hospital Indemnity', icon: '🏨', color: { bg: '#1a4a6e', accent: '#90d0f0', label: '#90d0f0' }, match: t => t.toLowerCase().includes('hospital') || t.toLowerCase().includes('indemnity'), desc: 'Pays a daily benefit when you're hospitalized. Helps cover out-of-pocket costs like copays and deductibles.' },
-  { key: 'cancer', label: 'First Occurrence Cancer', icon: '🎗️', color: { bg: '#6e1a1a', accent: '#f0a0a0', label: '#f0a0a0' }, match: t => t.toLowerCase().includes('cancer'), desc: 'Pays a lump sum if you're diagnosed with cancer for the first time. Use it however you need.' },
-  { key: 'life', label: 'Final Expense Life Insurance', icon: '🛡️', color: { bg: '#3a2a6e', accent: '#c0b0f0', label: '#c0b0f0' }, match: t => t.toLowerCase().includes('life') || t.toLowerCase().includes('final expense'), desc: 'Covers funeral and end-of-life expenses so your family isn't left with the burden.' },
-  { key: 'financial', label: 'No-Cost Financial Planning', icon: '📊', color: { bg: '#1a4a2a', accent: '#90dfa0', label: '#90dfa0' }, match: t => t.toLowerCase().includes('financial') || t.toLowerCase().includes('annuity'), desc: 'A complimentary review of your retirement finances with one of our licensed advisors.' },
+  { key: "medicare_advantage", label: "Medicare Advantage", icon: "🏥", color: { bg: "#1a2a4a", accent: "#d4a017", label: "#8aaad4" }, match: function(t) { return t.toLowerCase().includes("medicare advantage") || t.toLowerCase().includes("mapd"); }, desc: "Your primary Medicare coverage covering hospital, medical, and often prescription drugs." },
+  { key: "hospital_indemnity", label: "Hospital Indemnity", icon: "🏨", color: { bg: "#1a4a6e", accent: "#90d0f0", label: "#90d0f0" }, match: function(t) { return t.toLowerCase().includes("hospital") || t.toLowerCase().includes("indemnity"); }, desc: "Pays a daily cash benefit when you are hospitalized. Helps cover copays and other costs." },
+  { key: "cancer", label: "First Occurrence Cancer", icon: "🎗️", color: { bg: "#6e1a1a", accent: "#f0a0a0", label: "#f0a0a0" }, match: function(t) { return t.toLowerCase().includes("cancer"); }, desc: "Pays a lump sum if you are diagnosed with cancer for the first time. Use the funds however you need." },
+  { key: "life", label: "Final Expense Life Insurance", icon: "🛡️", color: { bg: "#3a2a6e", accent: "#c0b0f0", label: "#c0b0f0" }, match: function(t) { return t.toLowerCase().includes("life") || t.toLowerCase().includes("final expense"); }, desc: "Covers funeral and end-of-life expenses so your family is not left with the burden." },
+  { key: "financial", label: "No-Cost Financial Planning", icon: "📊", color: { bg: "#1a4a2a", accent: "#90dfa0", label: "#90dfa0" }, match: function(t) { return t.toLowerCase().includes("financial") || t.toLowerCase().includes("annuity"); }, desc: "A complimentary review of your retirement finances with one of our licensed advisors." },
 ];
 
 function renderPolicies(data) {
@@ -642,7 +644,7 @@ function renderPolicies(data) {
     </div>`;
   });
 
-  // Add opportunity cards for coverage types they don't have
+  // Add opportunity cards for coverage types they do not have
   const agentPhone = clientData && clientData.agentPhone ? clientData.agentPhone : '8882155740';
   const agentFirstName = clientData && clientData.agent ? 
     (clientData.agent.includes(',') ? clientData.agent.split(',')[1].trim().split(' ')[0] : clientData.agent.split(' ')[0]) 
@@ -651,7 +653,8 @@ function renderPolicies(data) {
   COVERAGE_TYPES.forEach(ct => {
     const hasIt = activePolicies.some(p => p.type && ct.match(p.type));
     if (!hasIt) {
-      html += `<div class="policy-card" style="opacity:0.6;" onclick="showCoverageInfo('${ct.label}', '${ct.desc}', '${agentPhone}', '${agentFirstName}')">
+      const idx = COVERAGE_TYPES.indexOf(ct);
+      html += `<div class="policy-card" style="opacity:0.6;" onclick="showCoverageInfo(${idx}, '${agentPhone}', '${agentFirstName}')">
         <div class="policy-header" style="background:${ct.color.bg};filter:grayscale(30%);">
           <div class="policy-header-left">
             <div class="policy-type" style="color:${ct.color.accent};">Not currently enrolled</div>

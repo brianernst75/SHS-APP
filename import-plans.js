@@ -170,6 +170,39 @@ function parsePlan(json) {
   plan.benefits.chiropractic     = getBenefit(['7b1']);
   plan.benefits.physicalTherapy  = getBenefit(['7h2', '7h1']);
 
+  // Drug tiers from rx section
+  const rxTiersData = pbp.rx && pbp.rx.rxDetails && pbp.rx.rxDetails.rxSetup && pbp.rx.rxDetails.rxSetup.rxTiers;
+  if (rxTiersData) {
+    const tierLabels = {
+      1: 'Tier 1 — Preferred Generic',
+      2: 'Tier 2 — Generic',
+      3: 'Tier 3 — Preferred Brand',
+      4: 'Tier 4 — Non-Preferred',
+      5: 'Tier 5 — Specialty',
+    };
+    plan.drugTiers = [];
+    for (let i = 1; i <= 5; i++) {
+      const key = `rxTier${i}`;
+      const tier = rxTiersData[key];
+      if (!tier || typeof tier !== 'object') continue;
+      const preicl = tier[`${key}PreIcl`];
+      if (!preicl || typeof preicl !== 'object') continue;
+      const det = preicl[`${key}PreIclDetails`];
+      if (!det || typeof det !== 'object') continue;
+      const retail = det.preIclRetailOneMonthCopayment;
+      const mail90 = det.preIclMailOrderThreeMonthCopayment;
+      const coins = det.preIclRetailOneMonthCoinsurance;
+      if (retail || mail90 || coins) {
+        plan.drugTiers.push({
+          tier: i,
+          label: tierLabels[i],
+          retail30: retail ? '$' + parseFloat(retail).toFixed(0) : (coins ? coins + '%' : null),
+          mail90: mail90 ? '$' + parseFloat(mail90).toFixed(0) : null,
+        });
+      }
+    }
+  }
+
   // OTC from combined supplemental
   const csg = pbp.costShareGroups || {};
   const csb = csg.combinedSupplementalBenefits || {};

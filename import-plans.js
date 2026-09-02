@@ -189,15 +189,41 @@ function parsePlan(json) {
       if (!preicl || typeof preicl !== 'object') continue;
       const det = preicl[`${key}PreIclDetails`];
       if (!det || typeof det !== 'object') continue;
-      const retail = det.preIclRetailOneMonthCopayment;
-      const mail90 = det.preIclMailOrderThreeMonthCopayment;
-      const coins = det.preIclRetailOneMonthCoinsurance;
-      if (retail || mail90 || coins) {
+
+      // Check cost share structure: 1=copay, 2=coinsurance, could be mixed
+      const structure = det.preIclCostShareStructure;
+      const retailCopay = det.preIclRetailOneMonthCopayment;
+      const mail90Copay = det.preIclMailOrderThreeMonthCopayment;
+      const retailCoins = det.preIclRetailOneMonthCoinsurance;
+      const mail90Coins = det.preIclMailOrderThreeMonthCoinsurance;
+
+      let retail30 = null;
+      let mail90 = null;
+
+      // Copay-based
+      if (retailCopay !== undefined && retailCopay !== '') {
+        const amt = parseFloat(retailCopay);
+        retail30 = '$' + amt.toFixed(0);
+      }
+      if (mail90Copay !== undefined && mail90Copay !== '') {
+        const amt = parseFloat(mail90Copay);
+        mail90 = '$' + amt.toFixed(0);
+      }
+
+      // Coinsurance-based (overrides if set)
+      if (!retail30 && retailCoins !== undefined && retailCoins !== '') {
+        retail30 = retailCoins + '%';
+      }
+      if (!mail90 && mail90Coins !== undefined && mail90Coins !== '') {
+        mail90 = mail90Coins + '%';
+      }
+
+      if (retail30 !== null || mail90 !== null) {
         plan.drugTiers.push({
           tier: i,
           label: tierLabels[i],
-          retail30: retail ? '$' + parseFloat(retail).toFixed(0) : (coins ? coins + '%' : null),
-          mail90: mail90 ? '$' + parseFloat(mail90).toFixed(0) : null,
+          retail30,
+          mail90,
         });
       }
     }

@@ -172,16 +172,16 @@
           <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Policies</div>
         </button>
         <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('benefits')">
-          <div style="width:48px;height:48px;border-radius:14px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:26px;">💊</div>
+          <div style="width:48px;height:48px;border-radius:14px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:26px;">➕</div>
           <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Benefits</div>
         </button>
         <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('cards')">
           <div style="width:48px;height:48px;border-radius:14px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:26px;">💳</div>
           <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Cards</div>
         </button>
-        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('eob')">
-          <div style="width:48px;height:48px;border-radius:14px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:26px;">📄</div>
-          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">My Bills</div>
+        <button style="background:#fff;border-radius:14px;border:1px solid #e0e6f0;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;" onclick="goTo('drugs')">
+          <div style="width:48px;height:48px;border-radius:14px;background:#fce8e8;display:flex;align-items:center;justify-content:center;font-size:26px;">💊</div>
+          <div style="font-size:15px;font-weight:600;color:#1a2a4a;">Drug Lookup</div>
         </button>
       </div>
 
@@ -283,6 +283,46 @@
     </div>
   </div>
 
+  <!-- DRUG LOOKUP -->
+  <div class="screen" id="screen-drugs">
+    <div class="header">
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">Drug Lookup</div>
+        <div class="header-sub">Search your plan's covered medications</div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div id="drug-lookup-intro" style="padding:14px 12px;display:flex;flex-direction:column;gap:10px;">
+        <div class="card" style="background:var(--navy);border-color:var(--navy);">
+          <div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Your Plan</div>
+          <div style="color:#fff;font-size:16px;font-weight:600;" id="drug-plan-name">Loading...</div>
+          <div style="color:#8aaad4;font-size:13px;margin-top:4px;" id="drug-plan-number"></div>
+        </div>
+        <div class="card">
+          <div style="font-size:15px;color:var(--text);line-height:1.6;margin-bottom:14px;">Search for any medication to see if it is covered by your plan, what tier it is, and what you will pay.</div>
+          <button id="drug-search-btn" onclick="openDrugSearch()" style="background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;width:100%;">💊 Search My Drug Formulary</button>
+        </div>
+        <div class="card" style="background:#fef6e4;border-color:#f0d080;">
+          <div style="font-size:13px;color:#7a5000;line-height:1.6;">
+            <strong>Understanding drug tiers:</strong><br>
+            Tier 1 (Preferred Generic) — lowest cost<br>
+            Tier 2 (Generic) — low cost<br>
+            Tier 3 (Preferred Brand) — moderate cost<br>
+            Tier 4 (Non-Preferred) — higher cost<br>
+            Tier 5 (Specialty) — highest cost
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">Have questions about a specific medication or cost? Call your agent.</div>
+          <a href="tel:8882155740" class="btn-primary" id="drug-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
+        </div>
+      </div>
+      <iframe id="drug-iframe" style="display:none;flex:1;border:none;width:100%;" title="Drug Formulary Search"></iframe>
+    </div>
+  </div>
+
   <!-- CARDS -->
   <div class="screen" id="screen-cards">
     <div class="header">
@@ -348,6 +388,7 @@
   <!-- NAV -->
   <nav class="nav">
     <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-item" onclick="goTo('eob')" id="nav-eob"><span class="nav-icon">📄</span><span class="nav-label">My Bills</span></button>
     <button class="nav-item" onclick="goTo('profile')" id="nav-profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
   </nav>
 
@@ -483,6 +524,10 @@ function renderApp(data) {
   const agentPhone = getAgentPhone(agentName);
   document.getElementById('agent-call').href = 'tel:' + agentPhone;
 
+  const drugCallBtn = document.getElementById('drug-call-btn');
+  if (drugCallBtn) {
+    drugCallBtn.href = 'tel:' + agentPhone;
+  }
   const eobBtn = document.getElementById('eob-call-btn');
   if (eobBtn) {
     eobBtn.href = 'tel:' + agentPhone;
@@ -504,6 +549,28 @@ function renderApp(data) {
   renderPolicies(data);
   renderBenefits(data);
   renderProfile(data);
+}
+
+function openDrugSearch() {
+  const maPolicy = clientData && clientData.policies &&
+    clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') &&
+    p.status && (p.status.toLowerCase() === 'active' || p.status.toLowerCase() === 'enrolled'));
+
+  if (!maPolicy || !maPolicy.mapdPlanNumber || maPolicy.mapdPlanNumber === 'n/a') {
+    showToast('Plan number not found. Call your agent for drug information.');
+    return;
+  }
+
+  const parts = maPolicy.mapdPlanNumber.split('-');
+  const contractId = parts[0];
+  const planId = parts[1];
+  const url = `https://q1medicare.com/PartD-BrowseMedicare-2026PlanFormulary.php?contractId=${contractId}&planId=${planId}`;
+
+  const iframe = document.getElementById('drug-iframe');
+  const intro = document.getElementById('drug-lookup-intro');
+  iframe.src = url;
+  iframe.style.display = 'block';
+  intro.style.display = 'none';
 }
 
 function showCoverageInfo(idx, phone, agentName) {
@@ -822,6 +889,18 @@ function goTo(screen) {
   const navEl = document.getElementById('nav-' + screen);
   if (navEl) navEl.classList.add('active');
   if (screen === 'cards') loadCards();
+  if (screen === 'drugs') {
+    const maPolicy = clientData && clientData.policies &&
+      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
+    if (maPolicy) {
+      document.getElementById('drug-plan-name').textContent = maPolicy.carrier + ' Medicare Advantage';
+      document.getElementById('drug-plan-number').textContent = maPolicy.mapdPlanNumber || '';
+    }
+    // Reset iframe when returning to drug screen
+    document.getElementById('drug-iframe').style.display = 'none';
+    document.getElementById('drug-lookup-intro').style.display = 'flex';
+    document.getElementById('drug-lookup-intro').style.flexDirection = 'column';
+  }
 }
 
 function handleEobPhoto(input) {

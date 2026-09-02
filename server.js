@@ -2,6 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const cron = require('node-cron');
+const { drugSearch, planTiers } = require('./drug-search-routes');
 
 const PORT = process.env.PORT || 3000;
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID;
@@ -585,6 +587,38 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Drug formulary search
+  if (url.startsWith('/api/drugs/search')) {
+    const client = await getMongoClient();
+    return drugSearch(req, res, client.db('shs'));
+  }
+
+  // Plan tier structure
+  if (url.startsWith('/api/drugs/plan-tiers')) {
+    const client = await getMongoClient();
+    return planTiers(req, res, client.db('shs'));
+  }
+
+  // Manual formulary refresh trigger (admin only)
+  if (url.startsWith('/admin/refresh-formulary') && req.method === 'POST') {
+    if (!checkAdmin(req, url)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Unauthorized' }));
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ message: 'Formulary refresh started in background' }));
+    setTimeout(() => {
+      try {
+        const { execSync } = require('child_process');
+        execSync('node import-cms-puf.js', { env: { ...process.env }, stdio: 'inherit', timeout: 30 * 60 * 1000 });
+        console.log('✅ Manual formulary refresh complete');
+      } catch (err) {
+        console.error('❌ Manual formulary refresh failed:', err.message);
+      }
+    }, 100);
+    return;
+  }
+
   const filePath = path.join(__dirname, 'index.html');
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(500); return res.end('Error'); }
@@ -594,3 +628,15 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => console.log(`SHS app running on port ${PORT}`));
+
+// Monthly CMS formulary refresh — runs 1st of every month at 6am UTC
+cron.schedule('0 6 1 * *', () => {
+  console.log('🔄 Monthly CMS formulary refresh starting...');
+  try {
+    const { execSync } = require('child_process');
+    execSync('node import-cms-puf.js', { env: { ...process.env }, stdio: 'inherit', timeout: 30 * 60 * 1000 });
+    console.log('✅ Monthly CMS formulary refresh complete');
+  } catch (err) {
+    console.error('❌ Monthly CMS formulary refresh failed:', err.message);
+  }
+});

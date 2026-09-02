@@ -174,7 +174,7 @@
           <div style="width:36px;height:36px;border-radius:10px;background:#e4f6ee;display:flex;align-items:center;justify-content:center;font-size:18px;">💊</div>
           <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Benefits</div>
         </button>
-        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="showToast('Card wallet coming soon!')">
+        <button style="background:#fff;border-radius:12px;border:1px solid #e0e6f0;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;" onclick="goTo('cards')">
           <div style="width:36px;height:36px;border-radius:10px;background:#fef6e4;display:flex;align-items:center;justify-content:center;font-size:18px;">💳</div>
           <div style="font-size:12px;font-weight:500;color:#1a2a4a;">My Cards</div>
         </button>
@@ -282,6 +282,30 @@
     </div>
   </div>
 
+  <!-- CARDS -->
+  <div class="screen" id="screen-cards">
+    <div class="header">
+      <button class="back-btn visible" onclick="goTo('home')" aria-label="Back">←</button>
+      <div class="header-content">
+        <div class="header-brand">Senior Health Solutions</div>
+        <div class="header-title">My Cards</div>
+        <div class="header-sub">Your insurance cards, always with you</div>
+      </div>
+    </div>
+    <div class="scroll" id="cards-content">
+      <div id="cards-list"></div>
+      <label for="card-photo-input" style="display:block;background:var(--navy);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(212,160,23,0.2);border:2px dashed var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:10px;">📷</div>
+        <div style="color:#fff;font-size:16px;font-weight:600;margin-bottom:4px;">Add a card photo</div>
+        <div style="color:#8aaad4;font-size:13px;">Photograph your Medicare, insurance, or pharmacy card</div>
+      </label>
+      <input id="card-photo-input" type="file" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="addCard(this)">
+      <div class="card" style="background:#fef6e4;border-color:#f0d080;">
+        <div style="font-size:14px;color:#7a5000;line-height:1.6;">Photos are stored only on this device and are never sent anywhere. If you lose your phone, the photos will not be recoverable.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- PROFILE -->
   <div class="screen" id="screen-profile">
     <div class="header">
@@ -325,6 +349,7 @@
     <button class="nav-item active" onclick="goTo('home')" id="nav-home"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
     <button class="nav-item" onclick="goTo('policies')" id="nav-policies"><span class="nav-icon">📋</span><span class="nav-label">Policies</span></button>
     <button class="nav-item" onclick="goTo('benefits')" id="nav-benefits"><span class="nav-icon">💊</span><span class="nav-label">Benefits</span></button>
+    <button class="nav-item" onclick="goTo('cards')" id="nav-cards"><span class="nav-icon">💳</span><span class="nav-label">My Cards</span></button>
     <button class="nav-item" onclick="goTo('eob')" id="nav-eob"><span class="nav-icon">📄</span><span class="nav-label">My Bills</span></button>
     <button class="nav-item" onclick="goTo('profile')" id="nav-profile"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
   </nav>
@@ -742,23 +767,27 @@ function goTo(screen) {
   document.getElementById('screen-' + screen).classList.add('active');
   const navEl = document.getElementById('nav-' + screen);
   if (navEl) navEl.classList.add('active');
+  if (screen === 'cards') loadCards();
 }
 
 function handleEobPhoto(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
+
+  // Show loading immediately
+  document.getElementById('eob-scan-label').style.display = 'none';
+  document.getElementById('eob-loading').style.display = 'block';
+  document.getElementById('eob-result').style.display = 'none';
+  document.getElementById('eob-error').style.display = 'none';
+  document.getElementById('eob-default-card').style.display = 'none';
+
   const reader = new FileReader();
   reader.onload = async function(e) {
     const dataUrl = e.target.result;
     const base64 = dataUrl.split(',')[1];
     const mimeType = file.type || 'image/jpeg';
 
-    // Show loading, hide other states
-    document.getElementById('eob-scan-label').style.display = 'none';
-    document.getElementById('eob-loading').style.display = 'block';
-    document.getElementById('eob-result').style.display = 'none';
-    document.getElementById('eob-error').style.display = 'none';
-    document.getElementById('eob-default-card').style.display = 'none';
+    console.log('EOB photo size:', Math.round(base64.length / 1024) + 'KB', 'type:', mimeType);
 
     try {
       const res = await fetch('/api/explain-eob', {
@@ -776,12 +805,17 @@ function handleEobPhoto(input) {
         document.getElementById('eob-error').style.display = 'block';
       }
     } catch(e) {
+      console.log('EOB fetch error:', e.message);
       document.getElementById('eob-loading').style.display = 'none';
       document.getElementById('eob-error-msg').textContent = 'Connection error. Please try again or call your agent.';
       document.getElementById('eob-error').style.display = 'block';
     }
-    // Clear the input so the same file can be selected again
     input.value = '';
+  };
+  reader.onerror = function() {
+    document.getElementById('eob-loading').style.display = 'none';
+    document.getElementById('eob-error-msg').textContent = 'Could not read the photo. Please try again.';
+    document.getElementById('eob-error').style.display = 'block';
   };
   reader.readAsDataURL(file);
 }
@@ -799,6 +833,71 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Card wallet — localStorage based, stays on device only
+const CARDS_KEY = 'shs_cards_' + CONTACT_ID;
+
+function loadCards() {
+  try {
+    const saved = localStorage.getItem(CARDS_KEY);
+    const cards = saved ? JSON.parse(saved) : [];
+    renderCards(cards);
+  } catch(e) { renderCards([]); }
+}
+
+function renderCards(cards) {
+  const list = document.getElementById('cards-list');
+  if (!list) return;
+  if (!cards.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px 0 10px;"><div style="font-size:14px;color:var(--text-muted);">No cards added yet. Tap below to photograph your first card.</div></div>';
+    return;
+  }
+  list.innerHTML = cards.map((c, i) => `
+    <div style="background:#fff;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:0;">
+      <div style="background:var(--navy);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:var(--gold);font-size:12px;font-weight:600;">${c.label || 'Insurance Card'}</div>
+        <button onclick="deleteCard(${i})" style="background:rgba(255,255,255,0.15);border:none;border-radius:6px;color:#fff;font-size:12px;padding:4px 8px;cursor:pointer;">Remove</button>
+      </div>
+      <img src="${c.data}" style="width:100%;display:block;" alt="Card photo">
+    </div>
+  `).join('');
+}
+
+function addCard(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+
+  // Ask for label
+  const label = prompt('What card is this? (e.g. Medicare Card, Humana Insurance, CVS Pharmacy)') || 'Insurance Card';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const saved = localStorage.getItem(CARDS_KEY);
+      const cards = saved ? JSON.parse(saved) : [];
+      cards.push({ label, data: e.target.result, addedAt: new Date().toISOString() });
+      localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
+      renderCards(cards);
+      showToast('Card saved to your device!');
+    } catch(err) {
+      showToast('Could not save card. Storage may be full.');
+    }
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function deleteCard(index) {
+  if (!confirm('Remove this card photo?')) return;
+  try {
+    const saved = localStorage.getItem(CARDS_KEY);
+    const cards = saved ? JSON.parse(saved) : [];
+    cards.splice(index, 1);
+    localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
+    renderCards(cards);
+    showToast('Card removed.');
+  } catch(e) {}
 }
 
 loadClient();

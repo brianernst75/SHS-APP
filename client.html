@@ -521,6 +521,16 @@ function renderPolicies(data) {
       ? `<span style="font-size:11px;border-radius:6px;padding:3px 9px;font-weight:500;background:#fef6e4;color:#8a5e00;">Pending</span>`
       : `<span class="badge badge-green">${p.status || 'Active'}</span>`;
 
+    const isMA = p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
+    const b = isMA && clientData && clientData.planBenefits;
+    const glanceRows = isMA && b ? [
+      ['Primary care', b.primaryCare && b.primaryCare.copay],
+      ['Specialist', b.specialist && b.specialist.copay],
+      ['Urgent care', b.urgentCare && b.urgentCare.copay],
+      ['Emergency room', b.emergencyRoom && b.emergencyRoom.copay],
+      ['Max out-of-pocket', b.moop],
+    ].filter(r => r[1]) : [];
+
     html += `<div class="policy-card" onclick="togglePolicy(${i})">
       <div class="policy-header" style="background:${color.bg};">
         <div class="policy-header-left">
@@ -539,7 +549,14 @@ function renderPolicies(data) {
         ${p.effectiveDate ? `<div class="policy-row"><span class="policy-label">Effective date</span><span class="policy-val">${formatDate(p.effectiveDate)}</span></div>` : ''}
         <div class="policy-row"><span class="policy-label">Status</span>${statusBadge}</div>
         ${p.agentName ? `<div class="policy-row"><span class="policy-label">Your agent</span><span class="policy-val">${p.agentName}</span></div>` : ''}
-        ${p.premium && parseFloat(p.premium) > 0 && !(p.type && p.type.toLowerCase().includes('medicare advantage') && Math.round(parseFloat(p.premium)) === 25) ? `<div class="policy-row"><span class="policy-label">Monthly premium</span><span class="policy-val">$${displayPremium(p.premium, p.type)}</span></div>` : ''}
+        ${p.premium && parseFloat(p.premium) > 0 && !(isMA && Math.round(parseFloat(p.premium)) === 25) ? `<div class="policy-row"><span class="policy-label">Monthly premium</span><span class="policy-val">$${displayPremium(p.premium, p.type)}</span></div>` : ''}
+        ${glanceRows.length ? `
+          <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Benefits at a glance</div>
+            ${glanceRows.map(r => `<div class="policy-row"><span class="policy-label">${r[0]}</span><span class="policy-val" style="font-weight:600;">${r[1]}</span></div>`).join('')}
+          </div>
+          <button onclick="event.stopPropagation();goTo('benefits')" style="margin-top:10px;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px;font-size:13px;font-weight:500;color:var(--navy);cursor:pointer;">See all benefits →</button>
+        ` : ''}
       </div>
     </div>`;
   });
@@ -632,6 +649,26 @@ function renderBenefits(data) {
 
   if (suppRows.length) {
     html += `<div class="card"><div class="card-title">Supplemental Benefits</div>${suppRows.map(r => benefitRow(r[0], r[1])).join('')}</div>`;
+  }
+
+  // Drug tiers
+  if (b.drugTiers && b.drugTiers.length) {
+    html += `<div class="card"><div class="card-title">Drug Copays (Part D)</div>`;
+    html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:0;margin-bottom:4px;">
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:4px 0;">Tier</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:4px 8px;text-align:right;">Retail 30</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:4px 0;text-align:right;">Mail 90</div>
+    </div>`;
+    for (const t of b.drugTiers) {
+      html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:0;padding:8px 0;border-top:1px solid var(--border);">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--navy);">${t.label}</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--navy);padding:0 8px;text-align:right;">${t.retail30 || '—'}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--navy);text-align:right;">${t.mail90 || '—'}</div>
+      </div>`;
+    }
+    html += `</div>`;
   }
 
   html += `<div class="card" style="background:var(--navy);border-color:var(--navy);">

@@ -209,6 +209,7 @@ async function getClientData(anyId) {
       telehealth: planBenefits.benefits && planBenefits.benefits.telehealth,
       chiropractic: planBenefits.benefits && planBenefits.benefits.chiropractic,
       physicalTherapy: planBenefits.benefits && planBenefits.benefits.physicalTherapy,
+      drugTiers: planBenefits.drugTiers || [],
     } : null,
     policies: policies.map(p => ({
       name: p.Deal_Name || '',

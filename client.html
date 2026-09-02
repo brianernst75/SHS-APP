@@ -613,32 +613,7 @@ function renderPolicies(data) {
             ${benefitPolicyRow('Specialist visit', b.specialist)}
             ${benefitPolicyRow('Urgent care', b.urgentCare)}
             ${benefitPolicyRow('Emergency room', b.emergencyRoom)}
-            ${benefitPolicyRow('Preventive care', b.preventive)}
-            ${benefitPolicyRow('Lab services', b.labServices)}
-            ${benefitPolicyRow('Ambulance', b.ambulance)}
-            ${benefitPolicyRow('Mental health', b.mentalHealth)}
-            ${benefitPolicyRow('Telehealth', b.telehealth)}
-            ${benefitPolicyRow('Chiropractic', b.chiropractic)}
-            ${benefitPolicyRow('Physical therapy', b.physicalTherapy)}
-            ${b.moop ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);"><span style="font-size:16px;font-weight:700;color:var(--navy);">Max out-of-pocket</span><span style="font-size:18px;font-weight:700;color:var(--navy);">${b.moop}</span></div>` : ''}
-            <div style="margin-top:8px;padding:10px 12px;background:#fef6e4;border-radius:8px;border:1px solid #f0d080;">
-              <div style="font-size:13px;color:#7a5000;line-height:1.5;">⚠ If you have Medicaid or Extra Help, your actual copays may be lower than shown. Call your agent to confirm your costs.</div>
-            </div>
           </div>
-          ${b.drugTiers && b.drugTiers.length ? `
-          <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
-            <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Drug Copays (Part D)</div>
-            <div style="display:grid;grid-template-columns:1fr auto auto;margin-bottom:4px;">
-              <div style="font-size:10px;font-weight:600;color:var(--text-muted);">Tier</div>
-              <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:0 8px;text-align:right;">Retail 30</div>
-              <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-align:right;">Mail 90</div>
-            </div>
-            ${b.drugTiers.map(t => `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-top:1px solid var(--border);">
-              <div style="font-size:12px;color:var(--navy);">${t.label}</div>
-              <div style="font-size:13px;font-weight:600;color:var(--navy);padding:0 8px;text-align:right;">${t.retail30 || '—'}</div>
-              <div style="font-size:13px;font-weight:600;color:var(--navy);text-align:right;">${t.mail90 || '—'}</div>
-            </div>`).join('')}
-          </div>` : ''}
         ` : ''}
       </div>
     </div>`;

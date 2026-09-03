@@ -536,6 +536,19 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (url.startsWith('/diagnostic/contact/')) {
+    const contactId = url.replace('/diagnostic/contact/', '').split('?')[0];
+    try {
+      const token = await getAccessToken();
+      const data = await getClientData(contactId);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(data, null, 2));
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: e.message }));
+    }
+  }
+
   if (url.startsWith('/diagnostic/plan/')) {
     const planKey = url.replace('/diagnostic/plan/', '').split('?')[0];
     try {

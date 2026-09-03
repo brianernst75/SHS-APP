@@ -172,7 +172,7 @@ async function getClientData(anyId) {
 
   // Fetch all linked policies from Potentials
   const policiesRes = await zohoGet(
-    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Effective_Date,Stage,Policy_Number,MAPD_Plan_Number,Monthly_Premium,Annualized_Premium,Renewal_Date,Agent_Name,Policy_Owner&per_page=20`,
+    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Effective_Date,Stage,Policy_Number,MAPD_Plan_Number,Monthly_Premium,Annualized_Premium,Renewal_Date,Agent_Name,Policy_Owner,Owner&per_page=20`,
     token
   );
   console.log('Policies found:', policiesRes.data ? policiesRes.data.length : 0);
@@ -187,8 +187,9 @@ async function getClientData(anyId) {
   const mapdNum = maPolicy ? (maPolicy.MAPD_Plan_Number || '') : '';
   const planBenefits = mapdNum && mapdNum !== 'n/a' ? await getPlanBenefits(mapdNum) : null;
 
-  // Get agent from the MA policy's Policy_Owner field
-  const maPolicyOwner = maPolicy ? (maPolicy.Policy_Owner || '') : '';
+  // Get agent from the MA policy's Owner field (the assigned agent on the deal)
+  const rawOwner = maPolicy ? (maPolicy.Owner || '') : '';
+  const maPolicyOwner = typeof rawOwner === 'object' ? (rawOwner.name || '') : rawOwner;
   const agentName = maPolicyOwner || (contact.Owner ? contact.Owner.name : 'Your Agent');
 
   return {
@@ -229,7 +230,7 @@ async function getClientData(anyId) {
       premium: p.Monthly_Premium || (p.Annualized_Premium ? p.Annualized_Premium / 12 : 0),
       effectiveDate: p.Effective_Date || '',
       renewalDate: p.Renewal_Date || '',
-      agentName: p.Policy_Owner || p.Agent_Name || '',
+      agentName: (p.Owner && p.Owner.name) || p.Agent_Name || '',
       status: p.Stage || 'Active'
     }))
   };

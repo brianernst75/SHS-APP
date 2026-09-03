@@ -33,7 +33,18 @@ async function drugSearch(req, res, db) {
     if (!planDoc) return res.end(JSON.stringify({ results: [], message: 'Plan not in formulary database' }));
 
     const formularyId = planDoc.formulary_id;
-    const tierCosts   = planDoc.tier_costs || {};
+
+    // Get tier costs from ma_plans (more accurate than PUF beneficiary cost file)
+    const maPlan = await db.collection('ma_plans').findOne({ planKey: planKey + '-000' });
+    const tierCostsArr = (maPlan && maPlan.drugTiers) || [];
+    const tierCosts = {};
+    tierCostsArr.forEach(t => {
+      tierCosts[String(t.tier)] = {
+        preferred_retail: t.retail30 || null,
+        standard_retail:  t.retail30 || null,
+        mail_order:       t.mail90   || null,
+      };
+    });
 
     const drugs = await db.collection('formulary').find({
       formulary_id:    formularyId,
@@ -106,31 +117,21 @@ async function planTiers(req, res, db) {
 
     if (!planKey) return res.end(JSON.stringify({ tiers: [] }));
 
-    const planDoc = await db.collection('formulary_plans').findOne({ contract_plan_id: planKey });
-    if (!planDoc) return res.end(JSON.stringify({ tiers: [] }));
+    // Pull from ma_plans which has correct tier data from CMS PBP files
+    const maPlan = await db.collection('ma_plans').findOne({ planKey: planKey + '-000' });
+    if (!maPlan || !maPlan.drugTiers || !maPlan.drugTiers.length) {
+      return res.end(JSON.stringify({ tiers: [] }));
+    }
 
-    const tierCosts = planDoc.tier_costs || {};
-    const tierLabels = {
-      1: 'Tier 1 — Preferred Generic',
-      2: 'Tier 2 — Generic',
-      3: 'Tier 3 — Preferred Brand',
-      4: 'Tier 4 — Non-Preferred Drug',
-      5: 'Tier 5 — Specialty',
-    };
+    const tiers = maPlan.drugTiers.map(t => ({
+      tier:             t.tier,
+      tier_label:       t.label,
+      preferred_retail: t.retail30 || '—',
+      standard_retail:  t.retail30 || '—',
+      mail_order:       t.mail90   || '—',
+    }));
 
-    const tiers = Object.keys(tierCosts)
-      .map(t => parseInt(t))
-      .filter(t => t >= 1 && t <= 5)
-      .sort()
-      .map(t => ({
-        tier:             t,
-        tier_label:       tierLabels[t] || `Tier ${t}`,
-        preferred_retail: tierCosts[String(t)].preferred_retail || '—',
-        standard_retail:  tierCosts[String(t)].standard_retail  || '—',
-        mail_order:       tierCosts[String(t)].mail_order        || '—',
-      }));
-
-    res.end(JSON.stringify({ plan_key: planKey, plan_name: planDoc.plan_name, tiers }));
+    res.end(JSON.stringify({ plan_key: planKey, plan_name: maPlan.planName || '', tiers }));
 
   } catch(err) {
     console.error('Plan tiers error:', err);

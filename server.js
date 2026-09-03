@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const cron = require('node-cron');
-const { drugSearch, planTiers } = require('./drug-search-routes');
+const { drugSearch, planTiers, drugCost } = require('./drug-search-routes');
 
 const PORT = process.env.PORT || 3000;
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID;
@@ -597,6 +597,12 @@ const server = http.createServer(async (req, res) => {
   if (url.startsWith('/api/drugs/plan-tiers')) {
     const client = await getMongoClient();
     return planTiers(req, res, client.db('shs'));
+  }
+
+  // Drug estimated out of pocket
+  if (url.startsWith('/api/drugs/cost')) {
+    const client = await getMongoClient();
+    return drugCost(req, res, client.db('shs'));
   }
 
   // Manual formulary refresh trigger (admin only)

@@ -693,9 +693,13 @@ function renderDrugResults(results, query) {
 }
 
 function showDrugDetail(drug) {
-  document.getElementById('drug-detail-name').textContent = drug.drug_name;
+  document.getElementById('drug-detail-name').textContent = drug.drug_name_short || drug.drug_name;
   const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
   const tc = tierColors[drug.tier] || '#666';
+
+  const hasCoinsurance = [drug.pricing.preferred_retail, drug.pricing.standard_retail, drug.pricing.mail_order]
+    .some(p => p && p.includes('%'));
+
   document.getElementById('drug-detail-body').innerHTML = `
     <div style="background:${tc}18;border:1px solid ${tc}40;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
       <div style="font-size:14px;font-weight:700;color:${tc};">${drug.tier_label}</div>
@@ -716,6 +720,12 @@ function showDrugDetail(drug) {
         <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.mail_order || '—'}</span>
       </div>
     </div>
+    ${hasCoinsurance ? `
+    <div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:#2E7D32;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Estimated Out-of-Pocket</div>
+      <div id="drug-oop-value" style="font-size:22px;font-weight:700;color:#1B5E20;">Calculating...</div>
+      <div id="drug-oop-disclaimer" style="font-size:11px;color:#4CAF50;margin-top:3px;line-height:1.4;"></div>
+    </div>` : ''}
     <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Coverage Details</div>
     <div style="background:var(--bg);border-radius:10px;padding:11px 14px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
@@ -733,7 +743,30 @@ function showDrugDetail(drug) {
     </div>
     <div style="font-size:11px;color:var(--text-muted);text-align:center;">Pricing from CMS Medicare Plan Finder · ${drug.plan_year} plan year</div>
   `;
+
   document.getElementById('drug-detail-modal').style.display = 'flex';
+
+  // Fetch estimated OOP for coinsurance tiers
+  if (hasCoinsurance && currentDrugPlan) {
+    fetch(`/api/drugs/cost?name=${encodeURIComponent(drug.drug_name)}&plan=${encodeURIComponent(currentDrugPlan)}&tier=${drug.tier}`)
+      .then(r => r.json())
+      .then(data => {
+        const oopEl  = document.getElementById('drug-oop-value');
+        const discEl = document.getElementById('drug-oop-disclaimer');
+        if (!oopEl) return;
+        if (data.estimated_oop) {
+          oopEl.textContent = data.estimated_oop;
+          if (discEl) discEl.textContent = data.disclaimer || '';
+        } else {
+          oopEl.textContent = 'Not available';
+          if (discEl) discEl.textContent = 'Estimated cost data not found for this drug.';
+        }
+      })
+      .catch(() => {
+        const oopEl = document.getElementById('drug-oop-value');
+        if (oopEl) oopEl.textContent = 'Not available';
+      });
+  }
 }
 
 function closeDrugDetail() {

@@ -678,7 +678,8 @@ function renderDrugResults(results, query) {
   el.innerHTML = results.map(drug => `
     <div onclick='showDrugDetail(${JSON.stringify(drug)})' style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
       <div style="flex:1;min-width:0;">
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px;">${drug.drug_name}</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px;">${drug.drug_name_short || drug.drug_name}</div>
+        <div style="font-size:11px;color:#999;margin-bottom:2px;">${drug.drug_name_short && drug.drug_name_short !== drug.drug_name ? drug.drug_name.replace(drug.drug_name_short,'').trim() : ''}</div>
         <div style="font-size:12px;color:var(--text-muted);">${drug.tier_label}</div>
         <div style="font-size:12px;color:var(--navy);margin-top:2px;">
           Retail: ${drug.pricing.preferred_retail || '—'}${drug.pricing.mail_order ? ' &nbsp;·&nbsp; Mail: ' + drug.pricing.mail_order : ''}

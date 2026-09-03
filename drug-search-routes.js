@@ -40,19 +40,33 @@ async function drugSearch(req, res, db) {
       drug_name_lower: { $regex: query, $options: 'i' }
     }).sort({ drug_name_lower: 1 }).limit(50).toArray();
 
-    // Sort: starts-with match first, then contains
+    // Extract brand name from brackets e.g. "atorvastatin [Lipitor]" → "Lipitor"
+    function getBrandName(name) {
+      const match = (name || '').match(/\[([^\]]+)\]/);
+      return match ? match[1] : null;
+    }
+
+    // Sort: brand starts-with first, generic starts-with second, contains last
     drugs.sort((a, b) => {
-      const aStarts = a.drug_name_lower.startsWith(query);
-      const bStarts = b.drug_name_lower.startsWith(query);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
+      const aBrand = (getBrandName(a.drug_name) || '').toLowerCase();
+      const bBrand = (getBrandName(b.drug_name) || '').toLowerCase();
+      const aStartsBrand   = aBrand && aBrand.startsWith(query);
+      const bStartsBrand   = bBrand && bBrand.startsWith(query);
+      const aStartsGeneric = a.drug_name_lower.startsWith(query);
+      const bStartsGeneric = b.drug_name_lower.startsWith(query);
+      if (aStartsBrand && !bStartsBrand) return -1;
+      if (!aStartsBrand && bStartsBrand) return 1;
+      if (aStartsGeneric && !bStartsGeneric) return -1;
+      if (!aStartsGeneric && bStartsGeneric) return 1;
       return a.drug_name_lower.localeCompare(b.drug_name_lower);
     });
 
     const results = drugs.slice(0, 20).map(drug => {
+      const brandName = getBrandName(drug.drug_name);
       const costs = tierCosts[String(drug.tier)] || {};
       return {
-        drug_name:      drug.drug_name || drug.rxcui,
+        drug_name:      brandName ? `${brandName} (${drug.drug_name.replace(/\s*\[[^\]]+\]/, '').trim()})` : drug.drug_name,
+        drug_name_short: brandName || drug.drug_name,
         rxcui:          drug.rxcui,
         ndc:            drug.ndc,
         tier:           drug.tier,

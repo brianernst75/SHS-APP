@@ -38,9 +38,18 @@ async function drugSearch(req, res, db) {
     const drugs = await db.collection('formulary').find({
       formulary_id:    formularyId,
       drug_name_lower: { $regex: query, $options: 'i' }
-    }).sort({ drug_name_lower: 1 }).limit(20).toArray();
+    }).sort({ drug_name_lower: 1 }).limit(50).toArray();
 
-    const results = drugs.map(drug => {
+    // Sort: starts-with match first, then contains
+    drugs.sort((a, b) => {
+      const aStarts = a.drug_name_lower.startsWith(query);
+      const bStarts = b.drug_name_lower.startsWith(query);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.drug_name_lower.localeCompare(b.drug_name_lower);
+    });
+
+    const results = drugs.slice(0, 20).map(drug => {
       const costs = tierCosts[String(drug.tier)] || {};
       return {
         drug_name:      drug.drug_name || drug.rxcui,

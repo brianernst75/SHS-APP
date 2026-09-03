@@ -179,8 +179,11 @@ async function getClientData(anyId) {
 
   const policies = policiesRes.data || [];
 
-  // Look up benefits for MA plan
-  const maPolicy = policies.find(p => p.Coverage_Type && p.Coverage_Type.toLowerCase().includes('medicare advantage'));
+  // Look up benefits for MA plan — Active, Pending, or Internal Replacement statuses only
+  const validStatuses = ['active', 'pending', 'internal replacement'];
+  const maPolicy = 
+    policies.find(p => p.Coverage_Type && p.Coverage_Type.toLowerCase().includes('medicare advantage') && p.MAPD_Plan_Number && p.MAPD_Plan_Number !== 'n/a' && p.MAPD_Plan_Number !== '' && validStatuses.includes((p.Stage || '').toLowerCase())) ||
+    policies.find(p => p.Coverage_Type && p.Coverage_Type.toLowerCase().includes('medicare advantage') && validStatuses.includes((p.Stage || '').toLowerCase()));
   const mapdNum = maPolicy ? (maPolicy.MAPD_Plan_Number || '') : '';
   const planBenefits = mapdNum && mapdNum !== 'n/a' ? await getPlanBenefits(mapdNum) : null;
 

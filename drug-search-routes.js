@@ -12,30 +12,36 @@ function parsePlanKey(mapd) {
   return null;
 }
 
+function getParams(req) {
+  const url = new URL(req.url, 'http://localhost');
+  return url.searchParams;
+}
+
 // GET /api/drugs/search?q=lisinopril&plan=H0609-073-000
 async function drugSearch(req, res, db) {
   try {
-    const query   = (req.query.q || '').trim().toLowerCase();
-    const planKey = parsePlanKey(req.query.plan || '');
+    const params  = getParams(req);
+    const query   = (params.get('q') || '').trim().toLowerCase();
+    const planKey = parsePlanKey(params.get('plan') || '');
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
 
     if (!query || query.length < 2) return res.end(JSON.stringify({ results: [] }));
     if (!planKey) return res.end(JSON.stringify({ results: [], message: 'No plan found' }));
 
-    // Look up formulary_id and tier costs for this plan
     const planDoc = await db.collection('formulary_plans').findOne({ contract_plan_id: planKey });
     if (!planDoc) return res.end(JSON.stringify({ results: [], message: 'Plan not in formulary database' }));
 
     const formularyId = planDoc.formulary_id;
     const tierCosts   = planDoc.tier_costs || {};
 
-    // Search drugs in this formulary
     const drugs = await db.collection('formulary').find({
       formulary_id:    formularyId,
       drug_name_lower: { $regex: query, $options: 'i' }
     }).sort({ drug_name_lower: 1 }).limit(20).toArray();
 
     const results = drugs.map(drug => {
-      const costs = (tierCosts[drug.tier] || {});
+      const costs = tierCosts[String(drug.tier)] || {};
       return {
         drug_name:      drug.drug_name || drug.rxcui,
         rxcui:          drug.rxcui,
@@ -51,35 +57,34 @@ async function drugSearch(req, res, db) {
           standard_retail:  costs.standard_retail  || null,
           mail_order:       costs.mail_order        || null,
         },
-        plan_name:  planDoc.plan_name,
-        plan_year:  drug.plan_year,
+        plan_name: planDoc.plan_name,
+        plan_year: drug.plan_year,
       };
     });
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ results, plan_key: planKey }));
 
   } catch(err) {
     console.error('Drug search error:', err);
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Drug search failed' }));
+    try {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Drug search failed', detail: err.message }));
+    } catch(e) {}
   }
 }
 
 // GET /api/drugs/plan-tiers?plan=H0609-073-000
 async function planTiers(req, res, db) {
   try {
-    const planKey = parsePlanKey(req.query.plan || '');
-    if (!planKey) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ error: 'Invalid plan' }));
-    }
+    const params  = getParams(req);
+    const planKey = parsePlanKey(params.get('plan') || '');
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+    if (!planKey) return res.end(JSON.stringify({ tiers: [] }));
 
     const planDoc = await db.collection('formulary_plans').findOne({ contract_plan_id: planKey });
-    if (!planDoc) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ tiers: [] }));
-    }
+    if (!planDoc) return res.end(JSON.stringify({ tiers: [] }));
 
     const tierCosts = planDoc.tier_costs || {};
     const tierLabels = {
@@ -97,18 +102,19 @@ async function planTiers(req, res, db) {
       .map(t => ({
         tier:             t,
         tier_label:       tierLabels[t] || `Tier ${t}`,
-        preferred_retail: tierCosts[t].preferred_retail || '—',
-        standard_retail:  tierCosts[t].standard_retail  || '—',
-        mail_order:       tierCosts[t].mail_order        || '—',
+        preferred_retail: tierCosts[String(t)].preferred_retail || '—',
+        standard_retail:  tierCosts[String(t)].standard_retail  || '—',
+        mail_order:       tierCosts[String(t)].mail_order        || '—',
       }));
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ plan_key: planKey, plan_name: planDoc.plan_name, tiers }));
 
   } catch(err) {
     console.error('Plan tiers error:', err);
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Failed to load tier data' }));
+    try {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load tier data' }));
+    } catch(e) {}
   }
 }
 

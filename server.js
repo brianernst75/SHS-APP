@@ -29,12 +29,16 @@ async function getPlanBenefits(mapdPlanNumber) {
   try {
     const client = await getMongoClient();
     const col = client.db('shs').collection('ma_plans');
-    // Parse H0609-073-000 into contractId H0609 and planId 073
     const parts = mapdPlanNumber.replace(/\s/g,'').split('-');
     if (parts.length < 2) return null;
     const contractId = parts[0];
-    const planId = parts[1];
-    const plan = await col.findOne({ contractId, planId });
+    const planId     = parts[1];
+    const segmentId  = parts[2] ? parts[2].padStart(3,'0') : null;
+    // Try full planKey first, fall back to contractId+planId
+    const planKey = segmentId ? `${contractId}-${planId}-${segmentId}` : null;
+    const plan = planKey
+      ? await col.findOne({ planKey }) || await col.findOne({ contractId, planId })
+      : await col.findOne({ contractId, planId });
     return plan;
   } catch(e) {
     console.log('MongoDB benefits lookup error:', e.message);
@@ -559,7 +563,8 @@ const server = http.createServer(async (req, res) => {
       const client = await getMongoClient();
       const col = client.db('shs').collection('ma_plans');
       const parts = planKey.split('-');
-      const plan = await col.findOne({ contractId: parts[0], planId: parts[1] });
+      const plan = await col.findOne({ planKey }) || 
+                   await col.findOne({ contractId: parts[0], planId: parts[1] });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify(plan, null, 2));
     } catch(e) {

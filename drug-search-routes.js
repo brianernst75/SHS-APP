@@ -20,20 +20,27 @@ function getParams(req) {
 }
 
 // ─── CMS Part D Drug Spending Lookup ─────────────────────────────────────────
-// Returns average monthly drug cost from CMS Medicare Part D spending data
-// Used to calculate estimated out-of-pocket for coinsurance tiers
 const drugCostCache = {};
 
 async function getCmsDrugCost(drugName) {
-  // Extract generic name (remove brand/dosage info)
-  const generic = drugName.replace(/\[.*?\]/g, '').replace(/\d+(\.\d+)?\s*(MG|ML|MCG|MG\/ML|%|IU)[^\s]*/gi, '').trim();
-  const cacheKey = generic.toLowerCase().slice(0, 20);
-  if (drugCostCache[cacheKey]) return drugCostCache[cacheKey];
+  const cacheKey = drugName.toLowerCase().slice(0, 30);
+  if (drugCostCache[cacheKey] !== undefined) return drugCostCache[cacheKey];
 
+  // Extract brand name from brackets [Lipitor] or use first word as brand
+  const bracketMatch = drugName.match(/\[([^\]]+)\]/);
+  const brandName = bracketMatch ? bracketMatch[1] : drugName.split(' ')[0];
+
+  // Try brand name first, then generic name
+  const result = await queryCmsSpending(brandName) || await queryCmsSpending(drugName.split(' ')[0]);
+  drugCostCache[cacheKey] = result;
+  return result;
+}
+
+async function queryCmsSpending(name) {
   return new Promise(resolve => {
-    // CMS Part D Spending dataset - public Socrata API, no key needed
-    const encoded = encodeURIComponent(generic.slice(0, 30));
-    const url = `https://data.cms.gov/data-api/v1/dataset/8c0571c3-3a2b-4535-9ff5-aec4b1ecfe5b/data?filter[Gnrc_Name]=${encoded}&size=1`;
+    // CMS Part D Spending dataset - correct ID and fields
+    const encoded = encodeURIComponent(name.toUpperCase().slice(0, 30));
+    const url = `https://data.cms.gov/data-api/v1/dataset/7e0b4365-fd63-4a29-8f5e-e0ac9f66a81b/data?filter[Brnd_Name]=${encoded}&filter[Mftr_Name]=Overall&size=1`;
 
     const req = https.get(url, res => {
       let data = '';
@@ -42,25 +49,17 @@ async function getCmsDrugCost(drugName) {
         try {
           const rows = JSON.parse(data);
           if (rows && rows.length > 0) {
-            // Tot_Spndng / Tot_Clms = avg cost per claim (30-day supply)
-            const row = rows[0];
-            const totalSpend  = parseFloat(row.Tot_Spndng || 0);
-            const totalClaims = parseFloat(row.Tot_Clms   || 1);
-            const avgPerClaim = totalSpend / totalClaims;
-            const result = avgPerClaim > 0 ? Math.round(avgPerClaim) : null;
-            drugCostCache[cacheKey] = result;
-            resolve(result);
+            // Avg_Spnd_Per_Clm_2024 = average cost per 30-day claim
+            const avgPerClaim = parseFloat(rows[0].Avg_Spnd_Per_Clm_2024 || 0);
+            resolve(avgPerClaim > 0 ? Math.round(avgPerClaim) : null);
           } else {
-            drugCostCache[cacheKey] = null;
             resolve(null);
           }
-        } catch(e) {
-          resolve(null);
-        }
+        } catch(e) { resolve(null); }
       });
     });
     req.on('error', () => resolve(null));
-    req.setTimeout(4000, () => { req.destroy(); resolve(null); });
+    req.setTimeout(5000, () => { req.destroy(); resolve(null); });
   });
 }
 

@@ -172,7 +172,7 @@ async function getClientData(anyId) {
 
   // Fetch all linked policies from Potentials
   const policiesRes = await zohoGet(
-    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Effective_Date,Stage,Policy_Number,MAPD_Plan_Number,Monthly_Premium,Annualized_Premium,Renewal_Date,Agent_Name&per_page=20`,
+    `/crm/v6/Potentials/search?criteria=(Contact_Name:equals:${contactId})&fields=Deal_Name,Coverage_Type,Insurance_Company,Application_Date,Effective_Date,Stage,Policy_Number,MAPD_Plan_Number,Monthly_Premium,Annualized_Premium,Renewal_Date,Agent_Name,Policy_Owner&per_page=20`,
     token
   );
   console.log('Policies found:', policiesRes.data ? policiesRes.data.length : 0);
@@ -184,6 +184,10 @@ async function getClientData(anyId) {
   const mapdNum = maPolicy ? (maPolicy.MAPD_Plan_Number || '') : '';
   const planBenefits = mapdNum && mapdNum !== 'n/a' ? await getPlanBenefits(mapdNum) : null;
 
+  // Get agent from the MA policy's Policy_Owner field
+  const maPolicyOwner = maPolicy ? (maPolicy.Policy_Owner || '') : '';
+  const agentName = maPolicyOwner || (contact.Owner ? contact.Owner.name : 'Your Agent');
+
   return {
     id: contact.id,
     name: (contact.First_Name || '') + ' ' + (contact.Last_Name || ''),
@@ -193,7 +197,7 @@ async function getClientData(anyId) {
     dob: contact.Date_of_Birth || '',
     address: [contact.Mailing_City, contact.Mailing_State].filter(Boolean).join(', '),
     medicareId: contact.Medicare_ID || contact.Medicare_Number || '',
-    agent: contact.Owner ? contact.Owner.name : 'Your Agent',
+    agent: agentName,
     agentPhone: contact.Owner_s_Phone || contact.Owner_Phone || '',
     planBenefits: planBenefits ? {
       moop: planBenefits.moop,
@@ -222,7 +226,7 @@ async function getClientData(anyId) {
       premium: p.Monthly_Premium || (p.Annualized_Premium ? p.Annualized_Premium / 12 : 0),
       effectiveDate: p.Effective_Date || '',
       renewalDate: p.Renewal_Date || '',
-      agentName: p.Agent_Name || '',
+      agentName: p.Policy_Owner || p.Agent_Name || '',
       status: p.Stage || 'Active'
     }))
   };

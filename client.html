@@ -839,10 +839,11 @@ function closeCoverageInfo() {
   if (modal) modal.style.display = 'none';
 }
 
-function benefitPolicyRow(label, benefit) {
+function benefitPolicyRow(label, benefit, isDsnp) {
   if (!benefit) return '';
-  const val = benefit.copay || benefit.maxBenefit || benefit.visits;
-  if (!val) return '';
+  const rawVal = benefit.copay || benefit.maxBenefit || benefit.visits;
+  if (!rawVal) return '';
+  const val = isDsnp && benefit.copay && benefit.copay.includes('%') ? '$0*' : rawVal;
   const extra = benefit.visits && benefit.copay ? ' · ' + benefit.visits : '';
   return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
     <span style="font-size:15px;color:var(--text-muted);">${label}</span>
@@ -894,6 +895,7 @@ function renderPolicies(data) {
 
     const isMA = p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
     const b = isMA && clientData && clientData.planBenefits;
+    const isDsnp = b && b.primaryCare && b.primaryCare.copay && b.primaryCare.copay.includes('%');
     const glanceRows = isMA && b ? [
       ['Primary care', b.primaryCare && b.primaryCare.copay],
       ['Specialist', b.specialist && b.specialist.copay],
@@ -924,10 +926,11 @@ function renderPolicies(data) {
         ${isMA && b ? `
           <div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:6px;">Medical Copays</div>
-            ${benefitPolicyRow('Primary care visit', b.primaryCare)}
-            ${benefitPolicyRow('Specialist visit', b.specialist)}
-            ${benefitPolicyRow('Urgent care', b.urgentCare)}
-            ${benefitPolicyRow('Emergency room', b.emergencyRoom)}
+            ${benefitPolicyRow('Primary care visit', b.primaryCare, isDsnp)}
+            ${benefitPolicyRow('Specialist visit', b.specialist, isDsnp)}
+            ${benefitPolicyRow('Urgent care', b.urgentCare, isDsnp)}
+            ${benefitPolicyRow('Emergency room', b.emergencyRoom, isDsnp)}
+            ${isDsnp ? '<div style="font-size:11px;color:var(--text-muted);padding-top:6px;line-height:1.5;">* Copays are based on your Medicaid eligibility level.</div>' : ''}
           </div>
         ` : ''}
       </div>
@@ -998,6 +1001,9 @@ function renderBenefits(data) {
     return;
   }
 
+  // Detect D-SNP: in-network PCP copay contains "%" (coinsurance = Dual SNP plan)
+  const isDsnp = b.primaryCare && b.primaryCare.copay && b.primaryCare.copay.includes('%');
+
   // Update header subtitle with plan name
   const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
   if (maPolicy) {
@@ -1006,7 +1012,8 @@ function renderBenefits(data) {
 
   function benefitRow(label, benefit, isFirst) {
     if (!benefit) return '';
-    const val = benefit.copay || benefit.maxBenefit || benefit.visits || '—';
+    const rawVal = benefit.copay || benefit.maxBenefit || benefit.visits || '—';
+    const val = isDsnp && benefit.copay && benefit.copay.includes('%') ? '$0*' : rawVal;
     const sub = benefit.visits && benefit.copay ? benefit.visits : '';
     return `<div class="policy-row">
       <span class="policy-label">${label}</span>
@@ -1046,6 +1053,7 @@ function renderBenefits(data) {
 
   if (medRows.length) {
     html += `<div class="card"><div class="card-title">Medical Copays</div>${medRows.map(r => benefitRow(r[0], r[1])).join('')}
+    ${isDsnp ? `<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;font-size:12px;color:var(--text-muted);line-height:1.5;">* Copays are based on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>` : ''}
     <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <span style="font-size:14px;color:var(--text-muted);">Preventive care services</span>

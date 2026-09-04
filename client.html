@@ -843,7 +843,7 @@ function benefitPolicyRow(label, benefit, isDsnp) {
   if (!benefit) return '';
   const rawVal = benefit.copay || benefit.maxBenefit || benefit.visits;
   if (!rawVal) return '';
-  const val = isDsnp && benefit.copay && benefit.copay.includes('%') ? '$0*' : rawVal;
+  const val = isDsnp && benefit.copay ? '$0*' : rawVal;
   const extra = benefit.visits && benefit.copay ? ' · ' + benefit.visits : '';
   return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
     <span style="font-size:15px;color:var(--text-muted);">${label}</span>
@@ -895,7 +895,7 @@ function renderPolicies(data) {
 
     const isMA = p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
     const b = isMA && clientData && clientData.planBenefits;
-    const isDsnp = b && b.primaryCare && b.primaryCare.copay && b.primaryCare.copay.includes('%');
+    const isDsnp = b && b.isSnp === true;
     const glanceRows = isMA && b ? [
       ['Primary care', b.primaryCare && b.primaryCare.copay],
       ['Specialist', b.specialist && b.specialist.copay],
@@ -1001,8 +1001,8 @@ function renderBenefits(data) {
     return;
   }
 
-  // Detect D-SNP: in-network PCP copay contains "%" (coinsurance = Dual SNP plan)
-  const isDsnp = b.primaryCare && b.primaryCare.copay && b.primaryCare.copay.includes('%');
+  // Detect D-SNP: use isSnp flag from ma_plans (set during PBP import)
+  const isDsnp = b.isSnp === true;
 
   // Update header subtitle with plan name
   const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
@@ -1013,7 +1013,7 @@ function renderBenefits(data) {
   function benefitRow(label, benefit, isFirst) {
     if (!benefit) return '';
     const rawVal = benefit.copay || benefit.maxBenefit || benefit.visits || '—';
-    const val = isDsnp && benefit.copay && benefit.copay.includes('%') ? '$0*' : rawVal;
+    const val = isDsnp && benefit.copay ? '$0*' : rawVal;
     const sub = benefit.visits && benefit.copay ? benefit.visits : '';
     return `<div class="policy-row">
       <span class="policy-label">${label}</span>

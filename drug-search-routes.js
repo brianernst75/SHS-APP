@@ -219,21 +219,68 @@ async function planTiers(req, res, db) {
 
     if (!planKey) return res.end(JSON.stringify({ tiers: [] }));
 
-    // Pull from ma_plans which has correct tier data from CMS PBP files
+    // Pull from ma_plans first (correct tier costs from CMS PBP files)
     const maPlan = await db.collection('ma_plans').findOne({ planKey: planKey + '-000' });
-    if (!maPlan || !maPlan.drugTiers || !maPlan.drugTiers.length) {
-      return res.end(JSON.stringify({ tiers: [] }));
+    const maTiers = (maPlan && maPlan.drugTiers) || [];
+
+    // If ma_plans has 2+ tiers, use it directly
+    if (maTiers.length >= 2) {
+      const tiers = maTiers.map(t => ({
+        tier:             t.tier,
+        tier_label:       t.label,
+        preferred_retail: t.retail30 || '—',
+        standard_retail:  t.retail30 || '—',
+        mail_order:       t.mail90   || '—',
+      }));
+      return res.end(JSON.stringify({ plan_key: planKey, plan_name: maPlan.planName || '', tiers }));
     }
 
-    const tiers = maPlan.drugTiers.map(t => ({
+    // Fallback: build tier table from formulary collection
+    // Get distinct tiers for this plan and grab one drug per tier for pricing
+    const planDoc = await db.collection('formulary_plans').findOne({ contract_plan_id: planKey });
+    if (!planDoc) return res.end(JSON.stringify({ tiers: [] }));
+
+    const formularyId = planDoc.formulary_id;
+
+    // Get one drug per tier to extract pricing
+    const tierDocs = await db.collection('formulary').aggregate([
+      { $match: { formulary_id: formularyId, tier: { $gte: 1, $lte: 6 } } },
+      { $sort: { tier: 1 } },
+      { $group: {
+          _id: '$tier',
+          tier: { $first: '$tier' },
+          tier_label: { $first: '$tier_label' },
+          preferred_retail_copay: { $first: '$preferred_retail_copay' },
+          preferred_retail_coins: { $first: '$preferred_retail_coins' },
+          mail_copay: { $first: '$mail_copay' },
+      }},
+      { $sort: { _id: 1 } }
+    ]).toArray();
+
+    const tierLabels = {
+      1: 'Tier 1 — Preferred Generic',
+      2: 'Tier 2 — Generic',
+      3: 'Tier 3 — Preferred Brand',
+      4: 'Tier 4 — Non-Preferred Drug',
+      5: 'Tier 5 — Specialty',
+      6: 'Tier 6 — Select Care',
+    };
+
+    function formatCost(copay, coins) {
+      if (copay > 0) return `$${copay}`;
+      if (coins > 0) return `${Math.round(coins * 100)}%`;
+      return '$0';
+    }
+
+    const tiers = tierDocs.map(t => ({
       tier:             t.tier,
-      tier_label:       t.label,
-      preferred_retail: t.retail30 || '—',
-      standard_retail:  t.retail30 || '—',
-      mail_order:       t.mail90   || '—',
+      tier_label:       tierLabels[t.tier] || `Tier ${t.tier}`,
+      preferred_retail: formatCost(t.preferred_retail_copay, t.preferred_retail_coins),
+      standard_retail:  formatCost(t.preferred_retail_copay, t.preferred_retail_coins),
+      mail_order:       t.mail_copay > 0 ? `$${t.mail_copay}` : '—',
     }));
 
-    res.end(JSON.stringify({ plan_key: planKey, plan_name: maPlan.planName || '', tiers }));
+    res.end(JSON.stringify({ plan_key: planKey, plan_name: planDoc.plan_name || '', tiers, source: 'formulary_fallback' }));
 
   } catch(err) {
     console.error('Plan tiers error:', err);

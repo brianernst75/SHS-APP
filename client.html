@@ -707,12 +707,18 @@ function showDrugDetail(drug) {
   const hasCoinsurance = !isDsnp && [drug.pricing.preferred_retail, drug.pricing.standard_retail, drug.pricing.mail_order]
     .some(p => p && p.includes('%'));
 
+  const noPricing = !isDsnp && !drug.pricing.preferred_retail && !drug.pricing.standard_retail && !drug.pricing.mail_order;
+
   document.getElementById('drug-detail-body').innerHTML = `
     <div style="background:${tc}18;border:1px solid ${tc}40;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
       <div style="font-size:14px;font-weight:700;color:${tc};">${drug.tier_label}</div>
       ${drug.selected_drug ? '<div style="font-size:12px;color:#2E7D32;margin-top:3px;">★ IRA negotiated price — set directly by Medicare</div>' : ''}
     </div>
     <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Your Copays</div>
+    ${noPricing ? `
+    <div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:14px;color:#E65100;line-height:1.5;">Drug pricing unavailable in our system. Please refer to your Summary of Benefits.</div>
+    </div>` : `
     <div style="background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);">
         <span style="font-size:14px;color:var(--text-muted);">Preferred Pharmacy (30-day)</span>
@@ -726,7 +732,7 @@ function showDrugDetail(drug) {
         <span style="font-size:14px;color:var(--text-muted);">Mail Order (90-day)</span>
         <span style="font-size:14px;font-weight:700;color:var(--text);">${displayPrice(drug.pricing.mail_order)}</span>
       </div>
-    </div>
+    </div>`}
     ${isDsnp ? `
     <div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
       <div style="font-size:12px;color:#1565C0;line-height:1.5;">* Copays are based on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>

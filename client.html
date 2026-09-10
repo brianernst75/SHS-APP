@@ -1094,6 +1094,34 @@ function renderBenefits(data) {
     </div>`;
   }
 
+  // Supplemental benefits (dental, vision, hearing, OTC)
+  const suppRows = [
+    ['Dental', b.dental],
+    ['Vision', b.vision],
+    ['Hearing', b.hearing],
+    ['OTC allowance', b.otc],
+  ].filter(r => r[1] && (r[1].copay || r[1].maxBenefit));
+
+  if (suppRows.length) {
+    html += `<div class="card">
+      <div class="card-title">Additional Benefits</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.4;">Benefits not provided by Original Medicare</div>
+      ${suppRows.map(r => {
+        const benefit = r[1];
+        const copay = isDsnp && benefit.copay ? '$0*' : (benefit.copay || '');
+        const max = benefit.maxBenefit ? benefit.maxBenefit : '';
+        return `<div class="policy-row">
+          <span class="policy-label">${r[0]}</span>
+          <div style="text-align:right;">
+            ${copay ? `<div style="font-size:13px;font-weight:500;color:var(--navy);">${copay}</div>` : ''}
+            ${max ? `<div style="font-size:11px;color:var(--text-muted);">${max}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+      ${isDsnp ? `<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;font-size:12px;color:var(--text-muted);line-height:1.5;">* Copays are based on your Medicaid eligibility level.</div>` : ''}
+    </div>`;
+  }
+
   // Drug tiers
   if (b.drugTiers && b.drugTiers.length) {
     html += `<div class="card"><div class="card-title">Drug Copays (Part D)</div>`;

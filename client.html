@@ -865,7 +865,7 @@ function renderPolicies(data) {
 
   const activePolicies = data.policies.filter(p => {
     const st = (p.status || '').toLowerCase();
-    return st !== 'cancelled' && st !== 'canceled';
+    return st !== 'cancelled' && st !== 'canceled' && st !== 'internal replacement';
   }).sort((a, b) => {
     const isMA = p => p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
     if (isMA(a) && !isMA(b)) return -1;

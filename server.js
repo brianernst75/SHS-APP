@@ -207,6 +207,7 @@ async function getClientData(anyId) {
     medicareId: contact.Medicare_ID || contact.Medicare_Number || '',
     agent: agentName,
     agentPhone: contact.Owner_s_Phone || contact.Owner_Phone || '',
+    mapdPlanNumber: mapdNum || '',
     planBenefits: planBenefits ? {
       moop: planBenefits.moop,
       primaryCare: planBenefits.benefits && planBenefits.benefits.primaryCare,

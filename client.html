@@ -809,7 +809,7 @@ async function loadTierTable(plan) {
 function renderTierTable(tiers) {
   if (!tiers.length) {
     document.getElementById('tier-table-container').innerHTML =
-      '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">Tier data not yet available. Import in progress.</div>';
+      '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">Drug tier pricing unavailable. Please refer to your Summary of Benefits.</div>';
     return;
   }
   const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};

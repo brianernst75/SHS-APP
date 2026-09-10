@@ -684,7 +684,7 @@ function renderDrugResults(results, query) {
         <div style="font-size:11px;color:#999;margin-bottom:2px;">${drug.drug_name_short && drug.drug_name_short !== drug.drug_name ? drug.drug_name.replace(drug.drug_name_short,'').trim() : ''}</div>
         <div style="font-size:12px;color:var(--text-muted);">${drug.tier_label}</div>
         <div style="font-size:12px;color:var(--navy);margin-top:2px;">
-          Retail: ${drug.pricing.preferred_retail || '—'}${drug.pricing.mail_order ? ' &nbsp;·&nbsp; Mail: ' + drug.pricing.mail_order : ''}
+          Retail: ${(clientData && clientData.planBenefits && clientData.planBenefits.isSnp) ? '$0*' : (drug.pricing.preferred_retail || '—')}${(!clientData || !clientData.planBenefits || !clientData.planBenefits.isSnp) && drug.pricing.mail_order ? ' &nbsp;·&nbsp; Mail: ' + drug.pricing.mail_order : ''}
         </div>
         ${drug.requires_pa ? '<span style="font-size:11px;background:#FFF3E0;color:#E65100;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block;">⚠️ Prior Auth</span>' : ''}
         ${drug.selected_drug ? '<span style="font-size:11px;background:#E8F5E9;color:#2E7D32;padding:2px 6px;border-radius:4px;margin-top:4px;margin-left:4px;display:inline-block;">★ Negotiated Price</span>' : ''}
@@ -699,7 +699,12 @@ function showDrugDetail(drug) {
   const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
   const tc = tierColors[drug.tier] || '#666';
 
-  const hasCoinsurance = [drug.pricing.preferred_retail, drug.pricing.standard_retail, drug.pricing.mail_order]
+  // Detect D-SNP from planBenefits
+  const isDsnp = clientData && clientData.planBenefits && clientData.planBenefits.isSnp === true;
+
+  const displayPrice = (price) => isDsnp ? '$0*' : (price || '—');
+
+  const hasCoinsurance = !isDsnp && [drug.pricing.preferred_retail, drug.pricing.standard_retail, drug.pricing.mail_order]
     .some(p => p && p.includes('%'));
 
   document.getElementById('drug-detail-body').innerHTML = `
@@ -711,17 +716,21 @@ function showDrugDetail(drug) {
     <div style="background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);">
         <span style="font-size:14px;color:var(--text-muted);">Preferred Pharmacy (30-day)</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.preferred_retail || '—'}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${displayPrice(drug.pricing.preferred_retail)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--border);">
         <span style="font-size:14px;color:var(--text-muted);">Standard Pharmacy (30-day)</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.standard_retail || '—'}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${displayPrice(drug.pricing.standard_retail)}</span>
       </div>
       <div style="display:flex;justify-content:space-between;padding:11px 14px;">
         <span style="font-size:14px;color:var(--text-muted);">Mail Order (90-day)</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${drug.pricing.mail_order || '—'}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${displayPrice(drug.pricing.mail_order)}</span>
       </div>
     </div>
+    ${isDsnp ? `
+    <div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;color:#1565C0;line-height:1.5;">* Copays are based on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>
+    </div>` : ''}
     ${hasCoinsurance ? `
     <div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
       <div style="font-size:12px;font-weight:700;color:#2E7D32;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Estimated Out-of-Pocket</div>

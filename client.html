@@ -602,8 +602,10 @@ function initDrugScreen(mapdPlanNumber) {
 
   // Show plan name/number in card
   if (clientData) {
-    const maPolicy = clientData.policies && clientData.policies.find(p =>
-      p.type && p.type.toLowerCase().includes('medicare advantage'));
+    const maPolicy = clientData.policies && (
+      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '' && p.mapdPlanNumber !== 'n/a' && (p.status||'').toLowerCase() === 'active') ||
+      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '' && p.mapdPlanNumber !== 'n/a')
+    );
     if (maPolicy) {
       document.getElementById('drug-plan-name').textContent =
         (maPolicy.carrier ? maPolicy.carrier + ' Medicare Advantage' : maPolicy.name) || 'Medicare Advantage';
@@ -865,7 +867,7 @@ function renderPolicies(data) {
 
   const activePolicies = data.policies.filter(p => {
     const st = (p.status || '').toLowerCase();
-    return st !== 'cancelled' && st !== 'canceled' && st !== 'internal replacement';
+    return st !== 'cancelled' && st !== 'canceled';
   }).sort((a, b) => {
     const isMA = p => p.type && (p.type.toLowerCase().includes('medicare advantage') || p.type.toLowerCase().includes('mapd'));
     if (isMA(a) && !isMA(b)) return -1;
@@ -1005,7 +1007,8 @@ function renderBenefits(data) {
   const isDsnp = b.isSnp === true;
 
   // Update header subtitle with plan name
-  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
+  const maPolicy = data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '' && (p.status||'').toLowerCase() === 'active') ||
+    data.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '');
   if (maPolicy) {
     document.getElementById('benefits-plan-sub').textContent = (maPolicy.carrier || 'Medicare Advantage') + ' — ' + (maPolicy.mapdPlanNumber || '2026');
   }
@@ -1145,8 +1148,10 @@ function goTo(screen) {
   if (navEl) navEl.classList.add('active');
   if (screen === 'cards') loadCards();
   if (screen === 'drugs') {
-    const maPolicy = clientData && clientData.policies &&
-      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage'));
+    const maPolicy = clientData && clientData.policies && (
+      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '' && p.mapdPlanNumber !== 'n/a' && (p.status||'').toLowerCase() === 'active') ||
+      clientData.policies.find(p => p.type && p.type.toLowerCase().includes('medicare advantage') && p.mapdPlanNumber && p.mapdPlanNumber !== '' && p.mapdPlanNumber !== 'n/a')
+    );
     const mapdPlan = maPolicy ? (maPolicy.mapdPlanNumber || '') : '';
     initDrugScreen(mapdPlan);
   }

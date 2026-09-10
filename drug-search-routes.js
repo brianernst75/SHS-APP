@@ -150,8 +150,18 @@ async function drugSearch(req, res, db) {
 
     const drugs = await db.collection('formulary').find({
       formulary_id:    formularyId,
-      drug_name_lower: { $regex: query, $options: 'i' }
+      drug_name_lower: { $regex: '^' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' }
     }).sort({ drug_name_lower: 1 }).limit(50).toArray();
+
+    // Also search by brand name (in brackets) starting with query
+    const brandDrugs = await db.collection('formulary').find({
+      formulary_id:    formularyId,
+      drug_name_lower: { $regex: '\\[' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' }
+    }).sort({ drug_name_lower: 1 }).limit(50).toArray();
+
+    // Merge and deduplicate
+    const seen = new Set(drugs.map(d => d._id.toString()));
+    const merged = [...drugs, ...brandDrugs.filter(d => !seen.has(d._id.toString()))];
 
     // Extract brand name from brackets e.g. "atorvastatin [Lipitor]" → "Lipitor"
     function getBrandName(name) {
@@ -160,7 +170,7 @@ async function drugSearch(req, res, db) {
     }
 
     // Sort: brand starts-with first, generic starts-with second, contains last
-    drugs.sort((a, b) => {
+    merged.sort((a, b) => {
       const aBrand = (getBrandName(a.drug_name) || '').toLowerCase();
       const bBrand = (getBrandName(b.drug_name) || '').toLowerCase();
       const aStartsBrand   = aBrand && aBrand.startsWith(query);
@@ -174,7 +184,7 @@ async function drugSearch(req, res, db) {
       return a.drug_name_lower.localeCompare(b.drug_name_lower);
     });
 
-    const results = drugs.slice(0, 20).map(drug => {
+    const results = merged.slice(0, 20).map(drug => {
       const brandName = getBrandName(drug.drug_name);
       const costs = tierCosts[String(drug.tier)] || {};
       return {

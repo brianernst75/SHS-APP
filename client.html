@@ -721,6 +721,13 @@ function igAndReset() {
   document.body.style.overflow = 'hidden';
 }
 
+function showInstallGuide() {
+  document.getElementById('install-guide-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  igIosReset();
+  igAndReset();
+}
+
 function closeInstallGuide() {
   document.getElementById('install-guide-modal').style.display = 'none';
   document.body.style.overflow = '';

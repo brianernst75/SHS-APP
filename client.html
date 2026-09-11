@@ -645,7 +645,7 @@ async function loadClient() {
 
 function showHomeBanner() {
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  if (!isStandalone && !localStorage.getItem('banner-dismissed')) {
+  if (!isStandalone && !localStorage.getItem('shs-install-dismissed-v2')) {
     document.getElementById('home-banner').style.display = 'block';
   }
 }
@@ -731,13 +731,13 @@ function closeInstallGuide() {
 
 function dismissInstallGuide() {
   closeInstallGuide();
-  try { localStorage.setItem('banner-dismissed', '1'); } catch(e) {}
+  try { localStorage.setItem('shs-install-dismissed-v2', '1'); } catch(e) {}
   document.getElementById('home-banner').style.display = 'none';
 }
 
 function dismissBanner() {
   document.getElementById('home-banner').style.display = 'none';
-  try { localStorage.setItem('banner-dismissed', '1'); } catch(e) {}
+  try { localStorage.setItem('shs-install-dismissed-v2', '1'); } catch(e) {}
 }
 
 function renderApp(data) {

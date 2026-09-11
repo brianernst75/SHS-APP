@@ -1108,13 +1108,15 @@ function renderBenefits(data) {
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.4;">Benefits not provided by Original Medicare</div>
       ${suppRows.map(r => {
         const benefit = r[1];
-        const copay = isDsnp && benefit.copay ? '$0*' : (benefit.copay || '');
-        const max = benefit.maxBenefit ? benefit.maxBenefit : '';
+        const rawCopay = benefit.copay || '';
+        const copay = isDsnp && rawCopay ? '$0*' : rawCopay;
+        const max = benefit.maxBenefit || '';
+        const copayLabel = copay.includes('%') ? copay + ' coinsurance' : copay;
+        const detail = [copayLabel, max].filter(Boolean).join(' · ');
         return `<div class="policy-row">
           <span class="policy-label">${r[0]}</span>
           <div style="text-align:right;">
-            ${copay ? `<div style="font-size:13px;font-weight:500;color:var(--navy);">${copay}</div>` : ''}
-            ${max ? `<div style="font-size:11px;color:var(--text-muted);">${max}</div>` : ''}
+            <div style="font-size:13px;font-weight:500;color:var(--navy);">${detail || '—'}</div>
           </div>
         </div>`;
       }).join('')}

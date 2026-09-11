@@ -109,7 +109,9 @@
   .profile-avatar-lg { width: 72px; height: 72px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
 
   /* Home screen banner */
-  .home-banner { background: #fff8e6; border: 1px solid #f0d080; border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  @keyframes igPulse{0%,100%{opacity:1;transform:translateX(-50%) scale(1)}50%{opacity:.7;transform:translateX(-50%) scale(1.15)}}
+  @keyframes igDrop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes igRing{0%,100%{box-shadow:0 0 0 2px #FFD700}50%{box-shadow:0 0 0 3px #FFD700,0 0 6px rgba(255,215,0,.4)}} background: #fff8e6; border: 1px solid #f0d080; border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
   .banner-text { font-size: 13px; color: #7a5000; line-height: 1.5; flex: 1; }
   .banner-close { background: none; border: none; font-size: 18px; color: #7a5000; cursor: pointer; flex-shrink: 0; }
 
@@ -437,52 +439,110 @@
   </div>
 
   <!-- Install guide modal -->
-  <div id="install-guide-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:99999;overflow-y:auto;padding:20px 16px;">
-    <div style="background:#fff;border-radius:20px;padding:20px;max-width:420px;margin:0 auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <div id="install-guide-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:99999;overflow-y:auto;padding:16px;">
+    <div style="background:#fff;border-radius:20px;padding:16px;max-width:420px;margin:0 auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="font-size:17px;font-weight:700;color:#1a2a4a;">Add to Home Screen</div>
         <button onclick="closeInstallGuide()" style="background:none;border:none;font-size:22px;color:#888;cursor:pointer;padding:0;">✕</button>
       </div>
-      <p style="font-size:13px;color:#666;margin:0 0 16px;line-height:1.5;">Access SHS MyPlan with one tap — just like a real app, no download required.</p>
-      <div style="background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px;">
-        <div style="font-size:12px;font-weight:700;color:#1565C0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">🍎 iPhone (Safari)</div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #dde4f5;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#1565C0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Open this link in <strong>Safari</strong> (not Chrome)</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #dde4f5;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#1565C0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Tap the <strong>Share button</strong> at the bottom ⬆</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #dde4f5;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#1565C0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Scroll down and tap <strong>Add to Home Screen</strong></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#1565C0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Tap <strong>Add</strong> in the top right — done!</div>
-        </div>
+      <p style="font-size:13px;color:#666;margin:0 0 12px;line-height:1.5;">Access SHS MyPlan with one tap — just like a real app, no download needed.</p>
+
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">
+        <button id="ig-ios-btn" onclick="igSwitchTab('ios')" style="padding:7px 16px;border-radius:20px;border:1px solid #1a2f5a;background:#1a2f5a;color:#fff;font-size:13px;cursor:pointer;">iPhone</button>
+        <button id="ig-and-btn" onclick="igSwitchTab('android')" style="padding:7px 16px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;color:#555;font-size:13px;cursor:pointer;">Android</button>
       </div>
-      <div style="background:#f0fff4;border-radius:12px;padding:14px;margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:700;color:#2E7D32;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">🤖 Android (Chrome)</div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #c8e6c9;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#2E7D32;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Open this link in <strong>Chrome</strong></div>
+
+      <div id="ig-ios">
+        <div style="display:flex;justify-content:center;margin:8px 0;">
+          <div style="width:140px;height:260px;border-radius:20px;border:3px solid #333;background:#f5f5f7;position:relative;overflow:hidden;">
+            <div style="height:24px;background:#1a2f5a;display:flex;align-items:center;justify-content:center;">
+              <span style="color:#fff;font-size:8px;font-weight:600;">SHS MyPlan</span>
+            </div>
+            <div id="ig-ios-app" style="padding:5px;">
+              <div style="background:#1a2f5a;border-radius:6px;padding:6px;margin-bottom:4px;">
+                <div style="font-size:7px;color:#8aaad4;">YOUR ACTIVE PLAN</div>
+                <div style="font-size:9px;color:#fff;font-weight:600;margin-top:1px;">Aetna Medicare Advantage</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+                <div style="background:#fff;border-radius:5px;padding:5px;text-align:center;"><div style="font-size:10px;">📋</div><div style="font-size:6px;color:#1a2a4a;font-weight:600;">My Policies</div></div>
+                <div style="background:#fff;border-radius:5px;padding:5px;text-align:center;"><div style="font-size:10px;">➕</div><div style="font-size:6px;color:#1a2a4a;font-weight:600;">My Benefits</div></div>
+              </div>
+            </div>
+            <div id="ig-ios-homescreen" style="display:none;padding:5px;">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding-top:6px;">
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#e8f0fa;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">📷</div><div style="font-size:6px;margin-top:1px;">Photos</div></div>
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#e8f5e9;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">📱</div><div style="font-size:6px;margin-top:1px;">Phone</div></div>
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#fff8e1;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">⚙️</div><div style="font-size:6px;margin-top:1px;">Settings</div></div>
+                <div id="ig-shs-icon" style="text-align:center;display:none;animation:igDrop .4s ease forwards;"><div style="width:24px;height:24px;border-radius:5px;background:#1a2f5a;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">🏥</div><div style="font-size:6px;margin-top:1px;font-weight:600;">SHS MyPlan</div></div>
+              </div>
+            </div>
+            <div id="ig-share-btn" onclick="igIosStep2()" style="position:absolute;bottom:42px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:6px;background:#007AFF;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:igPulse 1.5s infinite;">
+              <span style="color:#fff;font-size:14px;font-weight:bold;">⬆</span>
+            </div>
+            <div id="ig-ios-menu" style="position:absolute;bottom:-180px;left:0;right:0;background:#fff;border-radius:10px 10px 0 0;padding:6px;transition:bottom .4s ease;border-top:1px solid #ddd;">
+              <div style="padding:6px 8px;font-size:9px;color:#555;border-bottom:0.5px solid #eee;display:flex;align-items:center;gap:4px;">🔗 Copy link</div>
+              <div style="padding:6px 8px;font-size:9px;color:#555;border-bottom:0.5px solid #eee;display:flex;align-items:center;gap:4px;">✉️ Send via email</div>
+              <div id="ig-add-item" onclick="igIosStep3()" style="padding:6px 8px;font-size:9px;font-weight:700;color:#1565C0;background:#e8f0fe;border-radius:5px;display:flex;align-items:center;gap:4px;cursor:pointer;animation:igRing 1s infinite;">➕ Add to Home Screen</div>
+              <div style="padding:6px 8px;font-size:9px;color:#555;display:flex;align-items:center;gap:4px;">🔖 Reading List</div>
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:#fff;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-around;padding:0 6px;">
+              <span style="font-size:12px;">⬅</span>
+              <span style="font-size:12px;">⬆</span>
+              <span id="ig-share-nav" onclick="igIosStep2()" style="font-size:12px;cursor:pointer;">📤</span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #c8e6c9;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#2E7D32;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Tap the <strong>three dots</strong> menu ⋮ in the top right</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #c8e6c9;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#2E7D32;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Tap <strong>Add to Home screen</strong></div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;">
-          <div style="width:22px;height:22px;border-radius:50%;background:#2E7D32;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
-          <div style="font-size:13px;color:#1a2a4a;line-height:1.4;">Tap <strong>Add</strong> to confirm — done!</div>
-        </div>
+        <div id="ig-ios-label" style="text-align:center;font-size:13px;font-weight:500;color:#1a2a4a;padding:8px 0;min-height:38px;">Tap the Share button ⬆ at the bottom of Safari</div>
+        <div style="text-align:center;"><button onclick="igIosReset()" style="padding:5px 14px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;color:#555;font-size:12px;cursor:pointer;">↺ Replay</button></div>
       </div>
-      <button onclick="dismissInstallGuide()" style="width:100%;background:#1a2f5a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;">Got it!</button>
+
+      <div id="ig-android" style="display:none;">
+        <div style="display:flex;justify-content:center;margin:8px 0;">
+          <div style="width:140px;height:260px;border-radius:20px;border:3px solid #333;background:#f5f5f7;position:relative;overflow:hidden;">
+            <div style="height:24px;background:#1565C0;display:flex;align-items:center;justify-content:space-between;padding:0 6px;">
+              <span style="color:#fff;font-size:8px;font-weight:600;">SHS MyPlan</span>
+              <div id="ig-dots" onclick="igAndStep1()" style="display:flex;flex-direction:column;gap:2px;cursor:pointer;padding:2px;">
+                <div style="width:3px;height:3px;border-radius:50%;background:#fff;"></div>
+                <div style="width:3px;height:3px;border-radius:50%;background:#fff;"></div>
+                <div style="width:3px;height:3px;border-radius:50%;background:#fff;"></div>
+              </div>
+            </div>
+            <div id="ig-and-app" style="padding:5px;">
+              <div style="background:#1a2f5a;border-radius:6px;padding:6px;margin-bottom:4px;">
+                <div style="font-size:7px;color:#8aaad4;">YOUR ACTIVE PLAN</div>
+                <div style="font-size:9px;color:#fff;font-weight:600;margin-top:1px;">Aetna Medicare Advantage</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+                <div style="background:#fff;border-radius:5px;padding:5px;text-align:center;"><div style="font-size:10px;">📋</div><div style="font-size:6px;color:#1a2a4a;font-weight:600;">My Policies</div></div>
+                <div style="background:#fff;border-radius:5px;padding:5px;text-align:center;"><div style="font-size:10px;">➕</div><div style="font-size:6px;color:#1a2a4a;font-weight:600;">My Benefits</div></div>
+              </div>
+            </div>
+            <div id="ig-and-homescreen" style="display:none;padding:5px;position:absolute;top:24px;left:0;right:0;bottom:40px;background:#f0f2f5;">
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding-top:6px;">
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#e8f0fa;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">📷</div><div style="font-size:6px;margin-top:1px;">Photos</div></div>
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#e8f5e9;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">📱</div><div style="font-size:6px;margin-top:1px;">Phone</div></div>
+                <div style="text-align:center;"><div style="width:24px;height:24px;border-radius:5px;background:#fff8e1;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">⚙️</div><div style="font-size:6px;margin-top:1px;">Settings</div></div>
+                <div id="ig-and-icon" style="text-align:center;display:none;"><div style="width:24px;height:24px;border-radius:5px;background:#1565C0;margin:0 auto;font-size:12px;display:flex;align-items:center;justify-content:center;">🏥</div><div style="font-size:6px;margin-top:1px;font-weight:600;">SHS MyPlan</div></div>
+              </div>
+            </div>
+            <div id="ig-and-menu" style="position:absolute;top:28px;right:4px;background:#fff;border-radius:6px;width:110px;padding:3px 0;border:0.5px solid #ddd;opacity:0;transition:opacity .3s;pointer-events:none;">
+              <div style="padding:5px 8px;font-size:8px;color:#555;display:flex;align-items:center;gap:3px;">🔗 New tab</div>
+              <div style="padding:5px 8px;font-size:8px;color:#555;display:flex;align-items:center;gap:3px;">🔖 Bookmarks</div>
+              <div onclick="igAndStep2()" style="padding:5px 8px;font-size:8px;font-weight:700;color:#1565C0;background:#e8f0fe;display:flex;align-items:center;gap:3px;cursor:pointer;">➕ Add to Home screen</div>
+              <div style="padding:5px 8px;font-size:8px;color:#555;display:flex;align-items:center;gap:3px;">⬇ Download</div>
+            </div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:#fff;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-around;padding:0 6px;">
+              <span style="font-size:12px;">⬅</span>
+              <span style="font-size:12px;">⬜</span>
+              <span style="font-size:12px;">⬛</span>
+            </div>
+          </div>
+        </div>
+        <div id="ig-and-label" style="text-align:center;font-size:13px;font-weight:500;color:#1a2a4a;padding:8px 0;min-height:38px;">Tap the three dots ⋮ menu in the top right</div>
+        <div style="text-align:center;"><button onclick="igAndReset()" style="padding:5px 14px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;color:#555;font-size:12px;cursor:pointer;">↺ Replay</button></div>
+      </div>
+
+      <button onclick="dismissInstallGuide()" style="width:100%;background:#1a2f5a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:16px;">Got it!</button>
     </div>
   </div>
 
@@ -590,7 +650,73 @@ function showHomeBanner() {
   }
 }
 
-function showInstallGuide() {
+function igSwitchTab(tab) {
+  document.getElementById('ig-ios').style.display = tab === 'ios' ? 'block' : 'none';
+  document.getElementById('ig-android').style.display = tab === 'android' ? 'block' : 'none';
+  document.getElementById('ig-ios-btn').style.background = tab === 'ios' ? '#1a2f5a' : '#f5f5f5';
+  document.getElementById('ig-ios-btn').style.color = tab === 'ios' ? '#fff' : '#555';
+  document.getElementById('ig-ios-btn').style.borderColor = tab === 'ios' ? '#1a2f5a' : '#ddd';
+  document.getElementById('ig-and-btn').style.background = tab === 'android' ? '#1a2f5a' : '#f5f5f5';
+  document.getElementById('ig-and-btn').style.color = tab === 'android' ? '#fff' : '#555';
+  document.getElementById('ig-and-btn').style.borderColor = tab === 'android' ? '#1a2f5a' : '#ddd';
+}
+
+let igIosStepNum = 1;
+function igIosStep2() {
+  if (igIosStepNum !== 1) return;
+  igIosStepNum = 2;
+  document.getElementById('ig-share-btn').style.display = 'none';
+  document.getElementById('ig-ios-menu').style.bottom = '40px';
+  document.getElementById('ig-ios-label').textContent = 'Tap "Add to Home Screen" from the menu';
+}
+function igIosStep3() {
+  if (igIosStepNum !== 2) return;
+  igIosStepNum = 3;
+  document.getElementById('ig-ios-menu').style.display = 'none';
+  document.getElementById('ig-ios-app').style.display = 'none';
+  document.getElementById('ig-ios-homescreen').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('ig-shs-icon').style.display = 'block';
+    document.getElementById('ig-ios-label').textContent = '🎉 SHS MyPlan is now on your home screen!';
+  }, 300);
+}
+function igIosReset() {
+  igIosStepNum = 1;
+  document.getElementById('ig-share-btn').style.display = 'flex';
+  document.getElementById('ig-ios-menu').style.bottom = '-180px';
+  document.getElementById('ig-ios-menu').style.display = 'block';
+  document.getElementById('ig-ios-app').style.display = 'block';
+  document.getElementById('ig-ios-homescreen').style.display = 'none';
+  document.getElementById('ig-shs-icon').style.display = 'none';
+  document.getElementById('ig-ios-label').textContent = 'Tap the Share button ⬆ at the bottom of Safari';
+}
+
+function igAndStep1() {
+  const menu = document.getElementById('ig-and-menu');
+  menu.style.opacity = '1';
+  menu.style.pointerEvents = 'auto';
+  document.getElementById('ig-and-label').textContent = 'Tap "Add to Home screen" from the menu';
+}
+function igAndStep2() {
+  document.getElementById('ig-and-menu').style.opacity = '0';
+  document.getElementById('ig-and-menu').style.pointerEvents = 'none';
+  document.getElementById('ig-and-app').style.display = 'none';
+  document.getElementById('ig-and-homescreen').style.display = 'block';
+  setTimeout(() => {
+    document.getElementById('ig-and-icon').style.display = 'block';
+    document.getElementById('ig-and-label').textContent = '🎉 SHS MyPlan is now on your home screen!';
+  }, 300);
+}
+function igAndReset() {
+  document.getElementById('ig-and-menu').style.opacity = '0';
+  document.getElementById('ig-and-menu').style.pointerEvents = 'none';
+  document.getElementById('ig-and-app').style.display = 'block';
+  document.getElementById('ig-and-homescreen').style.display = 'none';
+  document.getElementById('ig-and-icon').style.display = 'none';
+  document.getElementById('ig-and-label').textContent = 'Tap the three dots ⋮ menu in the top right';
+}
+
+
   document.getElementById('install-guide-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
 }

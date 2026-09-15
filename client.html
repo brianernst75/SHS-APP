@@ -349,7 +349,7 @@
               <div style="font-size:28px;flex-shrink:0;">⚕️</div>
               <div>
                 <div style="font-size:14px;font-weight:700;color:#FFD700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Medicaid Drug Coverage</div>
-                <div style="font-size:14px;color:#e0eaff;line-height:1.6;">Medicaid may pick up or reduce your drug copays. Your actual cost depends on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>
+                <div style="font-size:14px;color:#e0eaff;line-height:1.6;">* Medicaid may pick up or reduce your drug copays. Your actual cost depends on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>
               </div>
             </div>
           </div>
@@ -1068,7 +1068,9 @@ function renderTierTable(tiers) {
       '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:14px;">Drug tier pricing unavailable. Please refer to your Summary of Benefits.</div>';
     return;
   }
+  const isDsnp = clientData && clientData.planBenefits && clientData.planBenefits.isSnp === true;
   const tierColors = {1:'#2E7D32',2:'#1565C0',3:'#F57F17',4:'#C62828',5:'#6A1B9A'};
+  const fmt = (val) => isDsnp ? '$0*' : (val || '—');
   document.getElementById('tier-table-container').innerHTML = `
     <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;">Your Plan's Tier Copays</div>
     <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px;">
@@ -1084,9 +1086,9 @@ function renderTierTable(tiers) {
             <span style="background:${tierColors[t.tier]||'#666'};color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-right:5px;">T${t.tier}</span>
             <span style="font-size:12px;color:var(--text-muted);">${(t.tier_label||'').replace(/Tier \d — /,'')}</span>
           </div>
-          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.preferred_retail||'—'}</div>
-          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.standard_retail||'—'}</div>
-          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${t.mail_order||'—'}</div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${fmt(t.preferred_retail)}</div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${fmt(t.standard_retail)}</div>
+          <div style="text-align:center;font-size:13px;font-weight:600;color:var(--text);">${fmt(t.mail_order)}</div>
         </div>
       `).join('')}
     </div>

@@ -455,7 +455,8 @@ const server = http.createServer(async (req, res) => {
     const contactId = url.replace('/api/client/', '').split('?')[0];
     try {
       // Check manual disable flag in MongoDB
-      const db = mongoClient.db('shs');
+      const mc = await getMongoClient();
+      const db = mc.db('shs');
       const accessRecord = await db.collection('client_access').findOne({ contactId });
       if (accessRecord && accessRecord.disabled) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -575,7 +576,8 @@ const server = http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         const { contactId, disabled } = JSON.parse(body);
-        const db = mongoClient.db('shs');
+        const mc = await getMongoClient();
+        const db = mc.db('shs');
         await db.collection('client_access').updateOne(
           { contactId },
           { $set: { contactId, disabled: !!disabled, updatedAt: new Date() } },

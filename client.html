@@ -1374,6 +1374,15 @@ function renderBenefits(data) {
   // Drug tiers
   if (b.drugTiers && b.drugTiers.length) {
     html += `<div class="card"><div class="card-title">Drug Copays (Part D)</div>`;
+    if (isDsnp) {
+      html += `<div style="background:linear-gradient(135deg,#1a2f5a,#1e3d6e);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px;">
+        <div style="font-size:22px;flex-shrink:0;">⚕️</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#FFD700;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">Medicaid Drug Coverage</div>
+          <div style="font-size:13px;color:#e0eaff;line-height:1.5;">* Medicaid may pick up or reduce your drug copays. Your actual cost depends on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0 – $14.40.</div>
+        </div>
+      </div>`;
+    }
     html += `<div style="display:grid;grid-template-columns:1fr auto auto;gap:0;margin-bottom:4px;">
       <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:4px 0;">Tier</div>
       <div style="font-size:10px;font-weight:600;color:var(--text-muted);padding:4px 8px;text-align:right;">Retail 30</div>

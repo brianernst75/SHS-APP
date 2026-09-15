@@ -451,6 +451,16 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (url === '/manifest.json') {
+    res.writeHead(200, { 'Content-Type': 'application/manifest+json' });
+    return res.end(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8'));
+  }
+
+  if (url === '/FINAL_LOGO.jpg') {
+    res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+    return res.end(fs.readFileSync(path.join(__dirname, 'FINAL_LOGO.jpg')));
+  }
+
   if (url.startsWith('/api/client/')) {
     const contactId = url.replace('/api/client/', '').split('?')[0];
     try {

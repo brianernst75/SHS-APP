@@ -1,0 +1,22 @@
+{
+  "name": "SHS MyMedicare",
+  "short_name": "SHS MyMedicare",
+  "description": "Your Medicare benefits, copays, and drug coverage — from Senior Health Solutions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a2f5a",
+  "theme_color": "#1a2f5a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/FINAL_LOGO.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/FINAL_LOGO.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

@@ -344,6 +344,15 @@
           <div id="tier-table-container">
             <div style="text-align:center;padding:20px;color:var(--text-muted);">Loading tier structure...</div>
           </div>
+          <div id="dsnp-drug-disclaimer" style="display:none;background:linear-gradient(135deg,#1a2f5a,#1e3d6e);border-radius:14px;padding:16px 18px;margin-bottom:10px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="font-size:28px;flex-shrink:0;">⚕️</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#FFD700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Medicaid Drug Coverage</div>
+                <div style="font-size:14px;color:#e0eaff;line-height:1.6;">Medicaid may pick up or reduce your drug copays. Your actual cost depends on your Medicaid eligibility level. Members with full Medicaid (QMB) typically pay $0.</div>
+              </div>
+            </div>
+          </div>
           <div class="card" style="margin-top:8px;">
             <div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">Have questions about a specific medication? Call your agent.</div>
             <a href="tel:8882155740" class="btn-primary" id="drug-call-btn" style="justify-content:center;">📞 Call Your Agent</a>
@@ -842,6 +851,10 @@ function initDrugScreen(mapdPlanNumber) {
   document.getElementById('drug-results').innerHTML = '';
   document.getElementById('drug-loading').style.display = 'none';
   document.getElementById('drug-tier-education').style.display = 'block';
+
+  // Show/hide Medicaid disclaimer
+  const isDsnpDrug = clientData && clientData.planBenefits && clientData.planBenefits.isSnp === true;
+  document.getElementById('dsnp-drug-disclaimer').style.display = isDsnpDrug ? 'block' : 'none';
 
   // Show plan name/number in card
   if (clientData) {

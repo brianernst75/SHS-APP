@@ -454,7 +454,28 @@ const server = http.createServer(async (req, res) => {
   if (url.startsWith('/api/client/')) {
     const contactId = url.replace('/api/client/', '').split('?')[0];
     try {
+      // Check manual disable flag in MongoDB
+      const db = mongoClient.db('shs');
+      const accessRecord = await db.collection('client_access').findOne({ contactId });
+      if (accessRecord && accessRecord.disabled) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ access: 'denied', reason: 'manually_disabled' }));
+      }
+
       const data = await getClientData(contactId);
+
+      // Check if client has at least one active/pending/enrolled MA policy
+      const activeStatuses = ['active', 'pending', 'enrolled'];
+      const hasActivePolicy = data.policies && data.policies.some(p =>
+        p.type && p.type.toLowerCase().includes('medicare advantage') &&
+        activeStatuses.includes((p.status || '').toLowerCase())
+      );
+
+      if (data.policies && data.policies.length > 0 && !hasActivePolicy) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ access: 'denied', reason: 'no_active_policy' }));
+      }
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify(data));
     } catch(e) {
@@ -543,6 +564,30 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
     }
+    return;
+  }
+
+  // Admin: toggle client access
+  // POST /api/admin/access { contactId, disabled: true/false }
+  if (url === '/api/admin/access' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { contactId, disabled } = JSON.parse(body);
+        const db = mongoClient.db('shs');
+        await db.collection('client_access').updateOne(
+          { contactId },
+          { $set: { contactId, disabled: !!disabled, updatedAt: new Date() } },
+          { upsert: true }
+        );
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, contactId, disabled: !!disabled }));
+      } catch(e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
     return;
   }
 

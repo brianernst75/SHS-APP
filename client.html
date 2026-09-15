@@ -652,6 +652,21 @@ async function loadClient() {
     const res = await fetch('/api/client/' + CONTACT_ID);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Could not load your data');
+
+    // Access denied — show friendly message
+    if (data.access === 'denied') {
+      document.getElementById('greeting').textContent = 'Access Unavailable';
+      document.getElementById('header-sub').textContent = 'Please contact your agent';
+      document.getElementById('home-loading').innerHTML = `
+        <div style="text-align:center;padding:40px 20px;">
+          <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+          <div style="font-size:17px;font-weight:600;color:#1a2a4a;margin-bottom:8px;">Your access to SHS MyMedicare is no longer active.</div>
+          <div style="font-size:14px;color:#6b7fa0;margin-bottom:24px;line-height:1.5;">If you believe this is an error or have questions about your coverage, please contact your agent.</div>
+          <a href="tel:6362444415" style="background:#1a2a4a;color:#fff;border-radius:12px;padding:14px 28px;text-decoration:none;font-size:16px;font-weight:500;">📞 Call Your Agent</a>
+        </div>`;
+      return;
+    }
+
     clientData = data;
     renderApp(data);
     showHomeBanner();

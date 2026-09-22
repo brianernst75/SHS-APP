@@ -435,6 +435,7 @@
       <div class="card">
         <div class="card-title">My Agent</div>
         <div class="setting-row"><span style="font-size:15px;">Agent</span><span style="font-size:14px;color:var(--text-muted);" id="profile-agent">—</span></div>
+        <div class="setting-row"><span style="font-size:15px;">Agent Phone</span><a href="tel:8882155740" style="font-size:14px;color:var(--navy);text-decoration:none;" id="profile-agent-phone">—</a></div>
         <div class="setting-row"><span style="font-size:15px;">Agency</span><span style="font-size:14px;color:var(--text-muted);">Senior Health Solutions</span></div>
         <div class="setting-row"><span style="font-size:15px;">Office</span><span style="font-size:14px;color:var(--text-muted);">(888) 215-5740</span></div>
       </div>
@@ -818,6 +819,19 @@ function renderApp(data) {
 
   const agentPhone = getAgentPhone(agentName);
   document.getElementById('agent-call').href = 'tel:' + agentPhone;
+
+  // Update all agent call buttons with direct agent number
+  ['drug-call-btn', 'eob-call-btn', 'benefits-call-btn', 'modal-call-btn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.href = 'tel:' + agentPhone;
+  });
+
+  // Update profile agent phone
+  const profileAgentPhone = document.getElementById('profile-agent-phone');
+  if (profileAgentPhone) {
+    profileAgentPhone.textContent = agentPhone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+    profileAgentPhone.href = 'tel:' + agentPhone;
+  }
 
   const drugCallBtn = document.getElementById('drug-call-btn');
   if (drugCallBtn) {
@@ -1238,7 +1252,7 @@ function renderPolicies(data) {
     }
   });
 
-  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:8882155740" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
+  html += `<div class="card" style="background:var(--navy);border-color:var(--navy);"><div style="color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Questions about your policies?</div><div style="color:#8aaad4;font-size:13px;margin-bottom:12px;line-height:1.5;">Your agent can review your coverage and answer any questions.</div><a href="tel:${agentPhone}" class="btn-primary" style="justify-content:center;">📞 Call Your Agent</a></div>`;
 
   container.innerHTML = html;
 

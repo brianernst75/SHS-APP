@@ -478,7 +478,6 @@ const server = http.createServer(async (req, res) => {
       // Check if client has at least one active/pending/enrolled MA policy
       const activeStatuses = ['active', 'pending', 'enrolled'];
       const hasActivePolicy = data.policies && data.policies.some(p =>
-        p.type && p.type.toLowerCase().includes('medicare advantage') &&
         activeStatuses.includes((p.status || '').toLowerCase())
       );
 
